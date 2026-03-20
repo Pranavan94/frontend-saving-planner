@@ -21,3 +21,35 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# windows
+Thumbs.db
+Desktop.ini
+
+# editor and ide
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# extra logs and runtime files
+pnpm-debug.log*
+lerna-debug.log*
+*.pid
+*.seed
+*.stackdump
+
+# tool caches
+.eslintcache
+.cache/
+.parcel-cache/
+
+# test and report outputs
+test-results/
+playwright-report/
+
+# optional env pattern (keep .env.example tracked)
+.env*
+!.env.example
