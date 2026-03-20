@@ -1,0 +1,54 @@
+.no-match-page {
+  min-height: calc(100vh - 76px);
+  display: grid;
+  place-items: center;
+  padding: 2rem 1rem;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(28, 128, 255, 0.15), transparent 36%),
+    radial-gradient(circle at 80% 0%, rgba(5, 36, 82, 0.18), transparent 42%),
+    #f3f7ff;
+}
+
+.no-match-card {
+  width: min(560px, 100%);
+  padding: 2.25rem 2rem;
+  border-radius: 18px;
+  border: 1px solid rgba(18, 50, 96, 0.12);
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.98), rgba(245, 250, 255, 0.96));
+  box-shadow: 0 16px 40px rgba(12, 37, 74, 0.16);
+  text-align: center;
+}
+
+.no-match-code {
+  margin-bottom: 0.25rem;
+  font-size: clamp(2.2rem, 5vw, 3.2rem);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #0c3272;
+}
+
+.no-match-title {
+  margin-bottom: 0.65rem;
+  font-size: clamp(1.4rem, 3vw, 1.95rem);
+  color: #10243f;
+}
+
+.no-match-text {
+  margin-bottom: 1.4rem;
+  color: #324a69;
+  line-height: 1.55;
+}
+
+.no-match-button {
+  background: #0c3272;
+  color: #f6fbff;
+  border-radius: 999px;
+  padding: 0.55rem 1.15rem;
+  font-weight: 600;
+}
+
+.no-match-button:hover,
+.no-match-button:focus-visible {
+  background: #0f418f;
+  color: #ffffff;
+}

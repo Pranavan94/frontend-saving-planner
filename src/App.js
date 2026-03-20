@@ -1,10 +1,8 @@
 
 import Header from './pages/header/Header';
-import { Navigate, Route, Routes } from 'react-router-dom';
-
-function PlannerPage() {
-  return <main className="container py-4">Saving Planner page</main>;
-}
+import Dashboard from './pages/dashboard/Dashboard';
+import NoMatch from './pages/noMatch/NoMatch';
+import {Route, Routes } from 'react-router-dom';
 
 function UserDetails() {
   return <main className="container py-4">User Details page</main>;
@@ -15,9 +13,9 @@ function App() {
     <>
       <Header />
       <Routes>
-        <Route path="/" element={<PlannerPage />} />
+        <Route path="/" element={<Dashboard/>} />
         <Route path="/user-details" element={<UserDetails />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<NoMatch/>} />
       </Routes>
     </>
   );
