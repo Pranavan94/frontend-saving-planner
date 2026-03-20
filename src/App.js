@@ -1,12 +1,9 @@
 
+import { Routes, Route } from 'react-router-dom';
 import Header from './pages/header/Header';
 import Dashboard from './pages/dashboard/Dashboard';
 import NoMatch from './pages/noMatch/NoMatch';
-import {Route, Routes } from 'react-router-dom';
-
-function UserDetails() {
-  return <main className="container py-4">User Details page</main>;
-}
+import PostUser from './pages/user/PostUser';
 
 function App() {
   return (
@@ -14,7 +11,7 @@ function App() {
       <Header />
       <Routes>
         <Route path="/" element={<Dashboard/>} />
-        <Route path="/user-details" element={<UserDetails />} />
+        <Route path="/user-details" element={<PostUser />} />
         <Route path="*" element={<NoMatch/>} />
       </Routes>
     </>
