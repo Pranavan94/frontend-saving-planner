@@ -1,9 +1,25 @@
-import logo from './logo.svg';
-import './App.css';
+
+import Header from './pages/header/Header';
+import { Navigate, Route, Routes } from 'react-router-dom';
+
+function PlannerPage() {
+  return <main className="container py-4">Saving Planner page</main>;
+}
+
+function UserDetails() {
+  return <main className="container py-4">User Details page</main>;
+}
 
 function App() {
   return (
-    <h1 class="text-center">Hello World</h1>
+    <>
+      <Header />
+      <Routes>
+        <Route path="/" element={<PlannerPage />} />
+        <Route path="/user-details" element={<UserDetails />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </>
   );
 }
 

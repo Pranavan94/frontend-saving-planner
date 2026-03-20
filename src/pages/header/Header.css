@@ -1,0 +1,67 @@
+:root {
+  --nav-bg-start: #0b1f3b;
+  --nav-bg-end: #143a6f;
+  --nav-text: #f8fbff;
+  --nav-text-muted: #d8e8ff;
+  --nav-outline: rgba(255, 255, 255, 0.2);
+}
+
+.app-navbar {
+  background: linear-gradient(110deg, var(--nav-bg-start), var(--nav-bg-end));
+  box-shadow: 0 10px 28px rgba(6, 17, 33, 0.22);
+  padding: 0.75rem 0;
+}
+
+.app-navbar-container {
+  max-width: 1120px;
+}
+
+.app-navbar-brand {
+  color: var(--nav-text) !important;
+  letter-spacing: 0.02em;
+  font-weight: 700;
+}
+
+.app-navbar .navbar-toggler {
+  border-color: var(--nav-outline);
+}
+
+.app-navbar .navbar-toggler:focus {
+  box-shadow: 0 0 0 0.2rem rgba(216, 232, 255, 0.3);
+}
+
+.app-navbar-link {
+  color: var(--nav-text-muted) !important;
+  font-weight: 600;
+  text-decoration: none;
+  margin-left: 1rem;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.app-navbar-link:hover,
+.app-navbar-link:focus-visible {
+  color: var(--nav-text) !important;
+  transform: translateY(-1px);
+}
+
+.app-navbar-link-active {
+  color: var(--nav-text) !important;
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  padding: 0.35rem 0.75rem !important;
+}
+
+@media (max-width: 991px) {
+  .app-navbar-links {
+    padding-top: 0.5rem;
+  }
+
+  .app-navbar-link {
+    margin-left: 0;
+    margin-top: 0.25rem;
+  }
+
+  .app-navbar-link-active {
+    width: fit-content;
+  }
+}
