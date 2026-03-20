@@ -1,9 +1,13 @@
 import "./PostUser.css"
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const apiBaseUrl = process.env.REACT_APP_API_BASE_URL;
+const basicAuthUsername = process.env.REACT_APP_BASIC_AUTH_USERNAME;
+const basicAuthPassword = process.env.REACT_APP_BASIC_AUTH_PASSWORD;
 
 const validateField = (name, value) => {
     if (name === "email") {
@@ -16,7 +20,7 @@ const validateField = (name, value) => {
         }
     }
 
-    if (name === "phoneNumber") {
+    if (name === "telephoneNumber") {
         if (!value.trim()) {
             return "Phone number is required.";
         }
@@ -25,6 +29,26 @@ const validateField = (name, value) => {
 
         if (!/^\+[1-9]\d{7,14}$/.test(normalizedPhone)) {
             return "Enter a valid phone number with country code, for example +1 5551234567.";
+        }
+    }
+
+    if (name === "password") {
+        if (!value.trim()) {
+            return "Password is required.";
+        }
+
+        if (value.length < 8) {
+            return "Password must be at least 8 characters long.";
+        }
+    }
+
+    if (name === "role") {
+        if (!value.trim()) {
+            return "Role is required.";
+        }
+
+        if (!["user", "admin"].includes(value)) {
+            return "Role must be either user or admin.";
         }
     }
 
@@ -38,7 +62,11 @@ const PostUser = () => {
         middleName: "",
         lastName: "",
         email: "",
-        phoneNumber: "",
+        telephoneNumber: "",
+        password: "",
+        role: "",
+        onboarding: false,
+
     });
     const [errors, setErrors] = useState({});
     const [touched, setTouched] = useState({});
@@ -46,7 +74,7 @@ const PostUser = () => {
     const validateForm = (values) => {
         const nextErrors = {};
 
-        ["email", "phoneNumber"].forEach((fieldName) => {
+        ["email", "telephoneNumber", "password", "role"].forEach((fieldName) => {
             const errorMessage = validateField(fieldName, values[fieldName]);
 
             if (errorMessage) {
@@ -58,10 +86,10 @@ const PostUser = () => {
     };
 
     const handleInputChange = (event) => {
-        const { name, value } = event.target;
+        const { name, value, type, checked } = event.target;
         const nextFormData = {
             ...formData,
-            [name]: value,
+            [name]: type === "checkbox" ? checked : value,
         };
 
         setFormData(nextFormData);
@@ -88,7 +116,9 @@ const PostUser = () => {
         });
     };
 
-    const handleSubmit = (event) => {
+    const navigate = useNavigate();
+
+    const handleSubmit = async (event) => {
         event.preventDefault();
 
         const nextErrors = validateForm(formData);
@@ -96,7 +126,9 @@ const PostUser = () => {
         setTouched({
             ...touched,
             email: true,
-            phoneNumber: true,
+            telephoneNumber: true,
+            password: true,
+            role: true,
         });
         setErrors(nextErrors);
 
@@ -105,6 +137,30 @@ const PostUser = () => {
         }
 
         console.log("Form submitted:", formData);
+
+        try {
+            if (!apiBaseUrl || !basicAuthUsername || !basicAuthPassword) {
+                console.error("Missing required environment variables for API request.");
+                return;
+            }
+
+            const credentials = btoa(`${basicAuthUsername}:${basicAuthPassword}`);
+
+            const response = await fetch(`${apiBaseUrl}/api/v1/users/user`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Basic ${credentials}`
+                },
+                body: JSON.stringify(formData),
+            });
+
+            const data = await response.json();
+            console.log("Response from server:", data);
+            navigate("/");
+        } catch (error) {
+            console.error("Failed to submit user:", error);
+        }
     };
 
     return (
@@ -158,17 +214,59 @@ const PostUser = () => {
                     <Form.Group controlId="formBasicPhoneNumber">
                         <Form.Control
                             type="tel"
-                            name="phoneNumber"
+                            name="telephoneNumber"
                             placeholder="Enter Phone Number (e.g. +1 5551234567)"
-                            value={formData.phoneNumber}
+                            value={formData.telephoneNumber}
                             onChange={handleInputChange}
                             onBlur={handleBlur}
-                            isInvalid={Boolean(touched.phoneNumber && errors.phoneNumber)}
+                            isInvalid={Boolean(touched.telephoneNumber && errors.telephoneNumber)}
                             required
                         />
                         <Form.Control.Feedback type="invalid">
-                            {errors.phoneNumber}
+                            {errors.telephoneNumber}
                         </Form.Control.Feedback>
+                    </Form.Group>
+                    <Form.Group controlId="formBasicName">
+                        <Form.Control
+                            type="password"
+                            name="password"
+                            placeholder="Enter password"
+                            value={formData.password}
+                            onChange={handleInputChange}
+                            onBlur={handleBlur}
+                            isInvalid={Boolean(touched.password && errors.password)}
+                            required
+                        />
+                        <Form.Control.Feedback type="invalid">
+                            {errors.password}
+                        </Form.Control.Feedback>
+                    </Form.Group>
+                    <Form.Group controlId="formBasicRole">
+                        <Form.Select
+                            name="role"
+                            value={formData.role}
+                            onChange={handleInputChange}
+                            onBlur={handleBlur}
+                            isInvalid={Boolean(touched.role && errors.role)}
+                            required
+                        >
+                            <option value="">Select role</option>
+                            <option value="user">user</option>
+                            <option value="admin">admin</option>
+                        </Form.Select>
+                        <Form.Control.Feedback type="invalid">
+                            {errors.role}
+                        </Form.Control.Feedback>
+                    </Form.Group>
+                    <Form.Group controlId="formBasicOnboarding">
+                        <Form.Check
+                            type="switch"
+                            id="onboarding-switch"
+                            name="onboarding"
+                            label={formData.onboarding ? "On" : "Off"}
+                            checked={formData.onboarding}
+                            onChange={handleInputChange}
+                        />
                     </Form.Group>
 
                     <Button variant="primary" type="submit" className="submit-button">
