@@ -4,6 +4,7 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Table from "react-bootstrap/Table";
 import Button from "react-bootstrap/Button";
+import { useNavigate } from "react-router-dom";
 
 const apiBaseUrl = process.env.REACT_APP_API_BASE_URL;
 const basicAuthUsername = process.env.REACT_APP_BASIC_AUTH_USERNAME;
@@ -12,6 +13,7 @@ const basicAuthPassword = process.env.REACT_APP_BASIC_AUTH_PASSWORD;
 const Dashboard = () => {
 
     const [users, setUsers] = useState([]);
+    const navigate = useNavigate();
 
     useEffect( () => {
 
@@ -51,6 +53,10 @@ const Dashboard = () => {
         }
     };
 
+    const handleUpdate = (userId) => {
+        navigate(`/user-details/${userId}`);
+    };
+
     return (
         <>
             <Container className="mt-5">
@@ -76,7 +82,7 @@ const Dashboard = () => {
                                         <td>{user.telephoneNumber}</td>
                                         <td>{user.role}</td>    
                                         <td>
-                                            <Button variant="outline-secondary">Update</Button>
+                                            <Button variant="outline-secondary" onClick={() => handleUpdate(user.id)}>Update</Button>
                                             <Button variant="outline-danger" onClick={() => handleDelete(user.id)} className="ms-2">Delete</Button>
                                         </td>       
                                     </tr>
