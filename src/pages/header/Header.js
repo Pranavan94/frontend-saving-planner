@@ -24,7 +24,7 @@ const Header = () => {
                                 isActive ? "app-navbar-link app-navbar-link-active" : "app-navbar-link"
                             }
                         >
-                            Saving overview
+                            Users overview
                         </Nav.Link>
                         <Nav.Link
                             as={NavLink}
@@ -33,7 +33,7 @@ const Header = () => {
                                 isActive ? "app-navbar-link app-navbar-link-active" : "app-navbar-link"
                             }
                         >
-                            User Details
+                            Create user
                         </Nav.Link>
                     </Nav>
                 </Navbar.Collapse>
