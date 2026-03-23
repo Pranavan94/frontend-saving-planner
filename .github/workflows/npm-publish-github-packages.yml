@@ -50,4 +50,5 @@ jobs:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - name: Skip publish reason
         if: steps.package_check.outputs.publishable != 'true'
-        run: echo "Skipping npm publish: ${{ steps.package_check.outputs.reason }}"
+        run: |
+          echo "Skipping npm publish: ${{ steps.package_check.outputs.reason }}"
