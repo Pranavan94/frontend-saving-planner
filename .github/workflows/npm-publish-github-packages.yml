@@ -1,11 +1,16 @@
 # This workflow will run tests using node and then publish a package to GitHub Packages when a release is created
 # For more information see: https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages
 
-name: Node.js Package
+name: Node.js CI and Package Publish
 
 on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
   release:
-    types: [created]
+    types: [published]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -15,10 +20,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: npm
       - run: npm ci
-      - run: npm test
+      - run: npm test -- --watch=false
+      - run: npm run build
 
   publish-gpr:
+    if: github.event_name == 'release'
     needs: build
     runs-on: ubuntu-latest
     permissions:
@@ -29,8 +37,17 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          registry-url: https://npm.pkg.github.com/
+          registry-url: https://npm.pkg.github.com
       - run: npm ci
-      - run: npm publish
+      - name: Check package publishability
+        id: package_check
+        run: |
+          node -e "const fs=require('fs'); const pkg=JSON.parse(fs.readFileSync('package.json','utf8')); let publishable=true; let reason='ok'; if(pkg.private){ publishable=false; reason='package.json has private=true'; } if(!pkg.private && !/^@[^/]+\/.+/.test(pkg.name||'')){ publishable=false; reason='package name must be scoped (e.g. @owner/name) for GitHub Packages'; } fs.appendFileSync(process.env.GITHUB_OUTPUT, `publishable=${publishable}\nreason=${reason}\n`);"
+      - name: Publish package
+        if: steps.package_check.outputs.publishable == 'true'
+        run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      - name: Skip publish reason
+        if: steps.package_check.outputs.publishable != 'true'
+        run: echo "Skipping npm publish: ${{ steps.package_check.outputs.reason }}"
