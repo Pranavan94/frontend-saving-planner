@@ -132,7 +132,7 @@ const SavingPlan = () => {
         
     const handleDelete = async (financeId) => {
         try {
-            const response = await fetch(`${apiBaseUrl}/api/v1/saving-plans/${financeId}`, {
+            const response = await fetch(`${apiBaseUrl}/api/v1/finance/overview/${financeId}`, {
                 method: 'DELETE',
                 headers: {
                     "Authorization": `Basic ${btoa(`${basicAuthUsername}:${basicAuthPassword}`)}`
