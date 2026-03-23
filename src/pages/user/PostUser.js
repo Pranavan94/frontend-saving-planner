@@ -136,8 +136,6 @@ const PostUser = () => {
             return;
         }
 
-        console.log("Form submitted:", formData);
-
         try {
             if (!apiBaseUrl || !basicAuthUsername || !basicAuthPassword) {
                 console.error("Missing required environment variables for API request.");
@@ -156,7 +154,6 @@ const PostUser = () => {
             });
 
             const data = await response.json();
-            console.log("Response from server:", data);
             navigate("/");
         } catch (error) {
             console.error("Failed to submit user:", error);

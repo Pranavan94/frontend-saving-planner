@@ -2,10 +2,16 @@
 import Navbar from "react-bootstrap/Navbar";
 import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
-import { Link, NavLink } from "react-router-dom";
+import NavDropdown from "react-bootstrap/NavDropdown";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import './Header.css';
 
 const Header = () => {
+    const { pathname } = useLocation();
+    const dropdownActive = pathname === "/" || pathname === "/user-details";
+    const savingPlanActive = pathname.startsWith("/saving-plan-overview");
+    const currentYear = new Date().getFullYear();
+
     return (
         <Navbar className="app-navbar" variant="dark" expand="lg">
             <Container className="app-navbar-container">
@@ -16,25 +22,38 @@ const Header = () => {
                 <Navbar.Toggle aria-controls="app-navbar-nav" />
                 <Navbar.Collapse id="app-navbar-nav">
                     <Nav className="ms-auto app-navbar-links">
-                        <Nav.Link
-                            as={NavLink}
-                            to="/"
-                            end
-                            className={({ isActive }) =>
-                                isActive ? "app-navbar-link app-navbar-link-active" : "app-navbar-link"
-                            }
+                         <Nav.Link
+                            as={Link}
+                            to={`/saving-plan-overview/${currentYear}`}
+                            className={savingPlanActive ? "app-navbar-link app-navbar-link-active" : "app-navbar-link"}
                         >
-                            Users overview
+                            My Saving Plan Overview
                         </Nav.Link>
-                        <Nav.Link
-                            as={NavLink}
-                            to="/user-details"
-                            className={({ isActive }) =>
-                                isActive ? "app-navbar-link app-navbar-link-active" : "app-navbar-link"
-                            }
+                        <NavDropdown
+                            title="Information"
+                            id="app-info-dropdown"
+                            className={`app-navbar-link app-navbar-dropdown${dropdownActive ? " app-navbar-link-active" : ""}`}
                         >
-                            Create user
-                        </Nav.Link>
+                            <NavDropdown.Item
+                                as={NavLink}
+                                to="/"
+                                end
+                                className={({ isActive }) =>
+                                    isActive ? "app-dropdown-item app-dropdown-item-active" : "app-dropdown-item"
+                                }
+                            >
+                                Users overview
+                            </NavDropdown.Item>
+                            <NavDropdown.Item
+                                as={NavLink}
+                                to="/user-details"
+                                className={({ isActive }) =>
+                                    isActive ? "app-dropdown-item app-dropdown-item-active" : "app-dropdown-item"
+                                }
+                            >
+                                Create user
+                            </NavDropdown.Item>
+                        </NavDropdown>
                     </Nav>
                 </Navbar.Collapse>
             </Container>

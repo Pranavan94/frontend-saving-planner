@@ -51,6 +51,55 @@
   padding: 0.35rem 0.75rem !important;
 }
 
+/* Dropdown toggle inherits nav-link colour */
+.app-navbar-dropdown > .dropdown-toggle {
+  color: var(--nav-text-muted) !important;
+  font-weight: 600;
+}
+
+.app-navbar-dropdown > .dropdown-toggle:hover,
+.app-navbar-dropdown > .dropdown-toggle:focus-visible {
+  color: var(--nav-text) !important;
+}
+
+.app-navbar-dropdown.app-navbar-link-active > .dropdown-toggle {
+  color: var(--nav-text) !important;
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  padding: 0.35rem 0.75rem !important;
+}
+
+/* Dropdown menu panel */
+.app-navbar-dropdown .dropdown-menu {
+  background: #6c757d;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 0.5rem;
+  margin-top: 0.25rem;
+  min-width: 10rem;
+}
+
+/* Dropdown items */
+.app-dropdown-item {
+  color: var(--nav-text-muted) !important;
+  font-weight: 500;
+  padding: 0.45rem 1rem;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.app-dropdown-item:hover,
+.app-dropdown-item:focus {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: var(--nav-text) !important;
+}
+
+.app-dropdown-item-active,
+.app-navbar-dropdown .dropdown-item.active,
+.app-navbar-dropdown .dropdown-item:active {
+  background: rgba(255, 255, 255, 0.18) !important;
+  color: var(--nav-text-muted) !important;
+  font-weight: 700;
+}
+
 @media (max-width: 991px) {
   .app-navbar-links {
     padding-top: 0.5rem;
@@ -63,5 +112,11 @@
 
   .app-navbar-link-active {
     width: fit-content;
+  }
+
+  .app-navbar-dropdown .dropdown-menu {
+    background: transparent;
+    border: none;
+    padding-left: 0.75rem;
   }
 }
