@@ -1,12 +1,12 @@
 
 import { Navigate, Routes, Route } from 'react-router-dom';
-import Header from './pages/header/Header';
-import Dashboard from './pages/dashboard/Dashboard';
-import NoMatch from './pages/noMatch/NoMatch';
-import PostUser from './pages/user/PostUser';
-import UpdateUser from './pages/user/UpdateUser';
-import SavingPlan from './pages/saving-plan/SavingPlan';
-import SavingPlanDetails from './pages/saving-plan/SavingPlanDetails';
+import Header from './pages/header/Header.jsx';
+import Dashboard from './pages/dashboard/Dashboard.jsx';
+import NoMatch from './pages/noMatch/NoMatch.jsx';
+import PostUser from './pages/user/PostUser.jsx';
+import UpdateUser from './pages/user/UpdateUser.jsx';
+import SavingPlan from './pages/saving-plan/SavingPlan.jsx';
+import SavingPlanDetails from './pages/saving-plan/SavingPlanDetails.jsx';
 
 function App() {
   const currentYear = String(new Date().getFullYear());
