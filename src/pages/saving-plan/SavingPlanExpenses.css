@@ -1,0 +1,19 @@
+.expense-page-title {
+    margin-bottom: 0.25rem;
+}
+
+.expense-summary-card {
+    border: 1px solid #d9e3ee;
+}
+
+.expense-summary-card-alert {
+    border-color: #d9534f;
+    background: #fff6f5;
+}
+
+.expense-summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.2rem 0;
+}

@@ -1,11 +1,15 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Table from "react-bootstrap/Table";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
+import {
+    getMonthlyExpensesTotal,
+    normalizeMonthlyExpenses,
+} from './monthlyExpenses.jsx';
 
 const apiBaseUrl = process.env.REACT_APP_API_BASE_URL;
 const basicAuthUsername = process.env.REACT_APP_BASIC_AUTH_USERNAME;
@@ -64,13 +68,11 @@ const formatCurrencyForView = (value, currency) => {
     }).format(numericValue);
 };
 
-const expenseFields = [
-    'monthlyExpenses', 'consumption', 'savings',
-    'investments', 'mortgagePayment', 'foodBudget',
-];
-
 const getTotalExpenses = (plan) =>
-    expenseFields.reduce((sum, field) => sum + (Number(plan[field]) || 0), 0);
+    (Number(plan.consumption) || 0)
+    + (Number(plan.savings) || 0)
+    + (Number(plan.investments) || 0)
+    + getMonthlyExpensesTotal(normalizeMonthlyExpenses(plan.monthlyExpenses, plan));
 
 const isOverBudget = (plan) => getTotalExpenses(plan) > (Number(plan.monthlyIncome) || 0);
 
@@ -204,25 +206,27 @@ const SavingPlan = () => {
                                     <th>Consumption</th>
                                     <th>Savings</th>
                                     <th>Investments</th>
-                                    <th>Mortgage Payment</th>
-                                    <th>Food Budget</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {filteredSavingPlan.map(savingPlan => {
                                     const overBudget = isOverBudget(savingPlan);
                                     const overspend = getTotalExpenses(savingPlan) - (Number(savingPlan.monthlyIncome) || 0);
+                                    const monthlyExpenses = normalizeMonthlyExpenses(savingPlan.monthlyExpenses, savingPlan);
                                     return (
                                     <tr key={savingPlan.id} className={overBudget ? 'table-danger' : ''}>
                                         <td>{formatDateForView(savingPlan.startDate)}</td>
                                         <td>{formatDateForView(savingPlan.endDate)}</td>
                                         <td>{formatCurrencyForView(savingPlan.monthlyIncome, selectedCurrency)}</td>
-                                        <td>{formatCurrencyForView(savingPlan.monthlyExpenses, selectedCurrency)}</td>
+                                        <td>
+                                            <Link to={`/saving-plan-expenses/${savingPlan.id}`}>
+                                                {formatCurrencyForView(getMonthlyExpensesTotal(monthlyExpenses), selectedCurrency)}
+                                            </Link>
+                                        </td>
                                         <td>{formatCurrencyForView(savingPlan.consumption, selectedCurrency)}</td>
                                         <td>{formatCurrencyForView(savingPlan.savings, selectedCurrency)}</td>
                                         <td>{formatCurrencyForView(savingPlan.investments, selectedCurrency)}</td>
-                                        <td>{formatCurrencyForView(savingPlan.mortgagePayment, selectedCurrency)}</td>
-                                        <td>{formatCurrencyForView(savingPlan.foodBudget, selectedCurrency)}</td>
                                         <td>
                                             {overBudget && (
                                                 <div className="text-danger small mb-1">
@@ -237,7 +241,7 @@ const SavingPlan = () => {
                                 })}
                                 {filteredSavingPlan.length === 0 && (
                                     <tr>
-                                        <td colSpan="10" className="text-center py-4">
+                                        <td colSpan="8" className="text-center py-4">
                                             No saving plans found for {activeYear}.
                                         </td>
                                     </tr>
