@@ -4,6 +4,7 @@ import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import NavDropdown from "react-bootstrap/NavDropdown";
 import { Link, NavLink, useLocation } from "react-router-dom";
+import LogoutButton from "../login/LogoutButton.jsx";
 import './Header.css';
 
 const Header = () => {
@@ -56,6 +57,7 @@ const Header = () => {
                                 Create user
                             </NavDropdown.Item>
                         </NavDropdown>
+                        <LogoutButton />
                     </Nav>
                 </Navbar.Collapse>
             </Container>

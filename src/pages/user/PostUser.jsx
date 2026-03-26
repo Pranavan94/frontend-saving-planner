@@ -3,11 +3,9 @@ import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { authFetch } from "../../api/client";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-const apiBaseUrl = process.env.REACT_APP_API_BASE_URL;
-const basicAuthUsername = process.env.REACT_APP_BASIC_AUTH_USERNAME;
-const basicAuthPassword = process.env.REACT_APP_BASIC_AUTH_PASSWORD;
 
 const validateField = (name, value) => {
     if (name === "email") {
@@ -137,23 +135,10 @@ const PostUser = () => {
         }
 
         try {
-            if (!apiBaseUrl || !basicAuthUsername || !basicAuthPassword) {
-                console.error("Missing required environment variables for API request.");
-                return;
-            }
-
-            const credentials = btoa(`${basicAuthUsername}:${basicAuthPassword}`);
-
-            const response = await fetch(`${apiBaseUrl}/api/v1/users/user`, {
+            await authFetch(`/api/v1/users/user`, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Basic ${credentials}`
-                },
                 body: JSON.stringify(formData),
             });
-
-            await response.json();
             navigate("/");
         } catch (error) {
             console.error("Failed to submit user:", error);

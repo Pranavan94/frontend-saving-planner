@@ -3,11 +3,9 @@ import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { authFetch } from '../../api/client';
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-const apiBaseUrl = process.env.REACT_APP_API_BASE_URL;
-const basicAuthUsername = process.env.REACT_APP_BASIC_AUTH_USERNAME;
-const basicAuthPassword = process.env.REACT_APP_BASIC_AUTH_PASSWORD;
 
 const validateField = (name, value) => {
     value = value == null ? '' : String(value);
@@ -51,11 +49,7 @@ const UpdateUser = () => {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const credentials = btoa(`${basicAuthUsername}:${basicAuthPassword}`);
-                const response = await fetch(`${apiBaseUrl}/api/v1/users/${id}`, {
-                    headers: { 'Authorization': `Basic ${credentials}` }
-                });
-                const data = await response.json();
+                const data = await authFetch(`/api/v1/users/${id}`);
                 setFormData({
                     firstName: data.firstName || '',
                     middleName: data.middleName || '',
@@ -108,28 +102,14 @@ const UpdateUser = () => {
         if (Object.keys(nextErrors).length > 0) return;
 
         try {
-            if (!apiBaseUrl || !basicAuthUsername || !basicAuthPassword) {
-                console.error('Missing required environment variables for API request.');
-                return;
-            }
-            const credentials = btoa(`${basicAuthUsername}:${basicAuthPassword}`);
             const body = { ...formData };
             if (!body.password.trim()) delete body.password;
 
-            const response = await fetch(`${apiBaseUrl}/api/v1/users/${id}`, {
+            await authFetch(`/api/v1/users/${id}`, {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Basic ${credentials}`
-                },
                 body: JSON.stringify(body),
             });
-
-            if (response.ok) {
-                navigate('/');
-            } else {
-                console.error('Failed to update user:', response.status);
-            }
+            navigate('/');
         } catch (error) {
             console.error('Failed to update user:', error);
         }

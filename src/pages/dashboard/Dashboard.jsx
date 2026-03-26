@@ -5,10 +5,7 @@ import Col from "react-bootstrap/Col";
 import Table from "react-bootstrap/Table";
 import Button from "react-bootstrap/Button";
 import { useNavigate } from "react-router-dom";
-
-const apiBaseUrl = process.env.REACT_APP_API_BASE_URL;
-const basicAuthUsername = process.env.REACT_APP_BASIC_AUTH_USERNAME;
-const basicAuthPassword = process.env.REACT_APP_BASIC_AUTH_PASSWORD;
+import { authFetch } from "../../api/client";
 
 const Dashboard = () => {
 
@@ -19,13 +16,8 @@ const Dashboard = () => {
 
         const fetchUsers = async () => {
             try {
-                const response = await fetch(`${apiBaseUrl}/api/v1/users`, {
-                    headers: {
-                        "Authorization": `Basic ${btoa(`${basicAuthUsername}:${basicAuthPassword}`)}`
-                    }
-                });
-                const data = await response.json();
-                setUsers(data);
+                const data = await authFetch('/api/v1/users');
+                setUsers(Array.isArray(data) ? data : data.value || []);
             } catch (error) {
                 console.error('Error fetching users:', error);
             }
@@ -37,17 +29,10 @@ const Dashboard = () => {
 
     const handleDelete = async (userId) => {
         try {
-            const response = await fetch(`${apiBaseUrl}/api/v1/users/${userId}`, {
-                method: 'DELETE',
-                headers: {
-                    "Authorization": `Basic ${btoa(`${basicAuthUsername}:${basicAuthPassword}`)}`
-                }
+            await authFetch(`/api/v1/users/${userId}`, {
+                method: 'DELETE'
             }); 
-            if (response.ok) {
-                setUsers(users.filter(user => user.id !== userId));
-            } else {
-                console.error('Failed to delete user');
-            }
+            setUsers(users.filter(user => user.id !== userId));
         } catch (error) {
             console.error('Error deleting user:', error);
         }

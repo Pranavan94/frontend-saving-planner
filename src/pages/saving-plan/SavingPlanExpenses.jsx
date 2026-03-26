@@ -7,6 +7,7 @@ import Card from 'react-bootstrap/Card';
 import Table from 'react-bootstrap/Table';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
+import { authFetch } from '../../api/client';
 import {
     fixedMonthlyExpenseFields,
     variableMonthlyExpenseFields,
@@ -16,10 +17,6 @@ import {
     normalizeMonthlyExpenses,
 } from './monthlyExpenses.jsx';
 import './SavingPlanExpenses.css';
-
-const apiBaseUrl = process.env.REACT_APP_API_BASE_URL;
-const basicAuthUsername = process.env.REACT_APP_BASIC_AUTH_USERNAME;
-const basicAuthPassword = process.env.REACT_APP_BASIC_AUTH_PASSWORD;
 
 const currencyOptions = [
     { code: 'NOK', label: 'Norwegian Krone' },
@@ -100,19 +97,7 @@ const SavingPlanExpenses = () => {
     useEffect(() => {
         const fetchPlan = async () => {
             try {
-                const credentials = btoa(`${basicAuthUsername}:${basicAuthPassword}`);
-                const response = await fetch(`${apiBaseUrl}/api/v1/finance/overview/${id}`, {
-                    headers: {
-                        Authorization: `Basic ${credentials}`,
-                    },
-                });
-
-                if (!response.ok) {
-                    setPlan(null);
-                    return;
-                }
-
-                const data = await response.json();
+                const data = await authFetch(`/api/v1/finance/overview/${id}`);
                 setPlan(data);
             } catch (error) {
                 console.error('Error fetching expense breakdown:', error);

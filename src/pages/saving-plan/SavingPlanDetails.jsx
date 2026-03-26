@@ -4,6 +4,7 @@ import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { authFetch } from '../../api/client';
 import {
     createEmptyInsuranceEntry,
     createEmptySubscriptionEntry,
@@ -14,10 +15,6 @@ import {
     toNumericMonthlyExpenses,
     variableMonthlyExpenseFields,
 } from './monthlyExpenses.jsx';
-
-const apiBaseUrl = process.env.REACT_APP_API_BASE_URL;
-const basicAuthUsername = process.env.REACT_APP_BASIC_AUTH_USERNAME;
-const basicAuthPassword = process.env.REACT_APP_BASIC_AUTH_PASSWORD;
 
 const formatDateForInput = (value) => {
     if (!value) {
@@ -195,11 +192,7 @@ const SavingPlanDetails = () => {
 
         const fetchPlan = async () => {
             try {
-                const credentials = btoa(`${basicAuthUsername}:${basicAuthPassword}`);
-                const response = await fetch(`${apiBaseUrl}/api/v1/finance/overview/${id}`, {
-                    headers: { 'Authorization': `Basic ${credentials}` },
-                });
-                const data = await response.json();
+                const data = await authFetch(`/api/v1/finance/overview/${id}`);
                 setFormData(normalizeSavingPlanForm(data));
             } catch (error) {
                 console.error('Error fetching saving plan:', error);
@@ -403,10 +396,7 @@ const SavingPlanDetails = () => {
         if (getOverspend(formData) > 0) return;
 
         try {
-            const credentials = btoa(`${basicAuthUsername}:${basicAuthPassword}`);
-            const url = isNew
-                ? `${apiBaseUrl}/api/v1/finance/overview/create`
-                : `${apiBaseUrl}/api/v1/finance/overview/${id}`;
+            const url = isNew ? '/api/v1/finance/overview/create' : `/api/v1/finance/overview/${id}`;
 
             const payload = {
                 ...formData,
@@ -419,19 +409,10 @@ const SavingPlanDetails = () => {
                 monthlyExpenses: toNumericMonthlyExpenses(formData.monthlyExpenses),
             };
 
-            const response = await fetch(url, {
+            await authFetch(url, {
                 method: isNew ? 'POST' : 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Basic ${credentials}`,
-                },
                 body: JSON.stringify(payload),
             });
-
-            if (!response.ok) {
-                console.error('Failed to save saving plan:', response.status);
-                return;
-            }
 
             navigate('/saving-plan-overview');
         } catch (error) {

@@ -6,14 +6,12 @@ import Col from "react-bootstrap/Col";
 import Table from "react-bootstrap/Table";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
+import { authFetch } from "../../api/client";
+import CsvUpload from './CsvUpload.jsx';
 import {
     getMonthlyExpensesTotal,
     normalizeMonthlyExpenses,
 } from './monthlyExpenses.jsx';
-
-const apiBaseUrl = process.env.REACT_APP_API_BASE_URL;
-const basicAuthUsername = process.env.REACT_APP_BASIC_AUTH_USERNAME;
-const basicAuthPassword = process.env.REACT_APP_BASIC_AUTH_PASSWORD;
 
 const currencyOptions = [
     { code: 'NOK', label: 'Norwegian Krone' },
@@ -112,39 +110,31 @@ const SavingPlan = () => {
         : [activeYear, ...availableYears].sort((left, right) => Number(right) - Number(left));
     const filteredSavingPlan = savingPlan.filter((plan) => getPlanYear(plan) === activeYear);
 
+        const fetchSavingPlan = async () => {
+            try {
+                const data = await authFetch('/api/v1/finance/overview');
+                setSavingPlan(Array.isArray(data) ? data : data.value || []);
+            } catch (error) {
+                console.error('Error fetching saving plan:', error);
+            }
+        };
+
         useEffect( () => {
-    
-            const fetchSavingPlan = async () => {
-                try {
-                    const response = await fetch(`${apiBaseUrl}/api/v1/finance/overview`, {
-                        headers: {
-                            "Authorization": `Basic ${btoa(`${basicAuthUsername}:${basicAuthPassword}`)}`
-                        }
-                    });
-                    const data = await response.json();
-                    setSavingPlan(data);
-                } catch (error) {
-                    console.error('Error fetching saving plan:', error);
-                }
-            };
-    
             fetchSavingPlan();   
         }, []);
+
+        const handleUploadSuccess = () => {
+            // Refresh the saving plan data after successful upload
+            fetchSavingPlan();
+        };
 
         
     const handleDelete = async (financeId) => {
         try {
-            const response = await fetch(`${apiBaseUrl}/api/v1/finance/overview/${financeId}`, {
-                method: 'DELETE',
-                headers: {
-                    "Authorization": `Basic ${btoa(`${basicAuthUsername}:${basicAuthPassword}`)}`
-                }
-            }); 
-            if (response.ok) {
-                setSavingPlan(savingPlan.filter(plan => plan.id !== financeId));
-            } else {
-                console.error('Failed to delete saving plan');
-            }
+            await authFetch(`/api/v1/finance/overview/${financeId}`, {
+                method: 'DELETE'
+            });
+            setSavingPlan(savingPlan.filter(plan => plan.id !== financeId));
         } catch (error) {
             console.error('Error deleting saving plan:', error);
         }
@@ -196,6 +186,7 @@ const SavingPlan = () => {
                                 </Form.Select>
                             </Form.Group>
                         </div>
+                        <CsvUpload onUploadSuccess={handleUploadSuccess} />
                         <Table striped bordered hover responsive>
                             <thead>
                                 <tr>
@@ -250,7 +241,7 @@ const SavingPlan = () => {
                         </Table>
                     </Col>
                 </Row>
-                <Row className="mt-3">
+                <Row className="mt-4">
                     <Col>
                         <Button variant="primary" onClick={() => handleAdd()}>
                             Add New Saving Plan
