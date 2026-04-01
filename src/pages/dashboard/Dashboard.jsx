@@ -6,6 +6,8 @@ import Table from "react-bootstrap/Table";
 import Button from "react-bootstrap/Button";
 import { useNavigate } from "react-router-dom";
 import { authFetch } from "../../api/client";
+import { FiEdit2, FiTrash2 } from "react-icons/fi";
+import "./Dashboard.css";
 
 const Dashboard = () => {
 
@@ -67,8 +69,22 @@ const Dashboard = () => {
                                         <td>{user.telephoneNumber}</td>
                                         <td>{user.role}</td>    
                                         <td>
-                                            <Button variant="outline-secondary" onClick={() => handleUpdate(user.id)}>Update</Button>
-                                            <Button variant="outline-danger" onClick={() => handleDelete(user.id)} className="ms-2">Delete</Button>
+                                            <div className="d-flex gap-1">
+                                                <Button
+                                                    variant="outline-secondary"
+                                                    size="sm"
+                                                    onClick={() => handleUpdate(user.id)}
+                                                    className="dashboard-action-btn dashboard-action-btn-update">
+                                                    <FiEdit2 size={13} />
+                                                </Button>
+                                                <Button
+                                                    variant="outline-danger"
+                                                    size="sm"
+                                                    onClick={() => handleDelete(user.id)}
+                                                    className="dashboard-action-btn dashboard-action-btn-delete">
+                                                    <FiTrash2 size={13} />
+                                                </Button>
+                                            </div>
                                         </td>       
                                     </tr>
                                 ))}

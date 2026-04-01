@@ -72,64 +72,70 @@ export default function CsvUpload({ onUploadSuccess }) {
     }
   };
 
-  return (
+return (
     <div className="csv-upload-container">
-      <div className="csv-upload-card">
-        <h3>Upload CSV File</h3>
-        <p className="text-muted">Import saving plans from a CSV file</p>
+        <div className="csv-upload-card">
+            <h6 className="mb-1">Upload CSV File</h6>
+            <p className="text-muted mb-3" style={{ fontSize: '0.8rem' }}>
+                Import saving plans from a CSV file
+            </p>
 
-        <Form onSubmit={handleUpload}>
-          <Form.Group controlId="csv-file-input" className="mb-3">
-            <Form.Label>Select CSV File</Form.Label>
-            <Form.Control
-              type="file"
-              accept=".csv"
-              onChange={handleFileChange}
-              disabled={loading}
-              isInvalid={message.type === 'error'}
-            />
-            {selectedFile && (
-              <Form.Text className="d-block mt-2">
-                Selected: <strong>{selectedFile.name}</strong> ({(selectedFile.size / 1024).toFixed(2)} KB)
-              </Form.Text>
+            <Form onSubmit={handleUpload}>
+                <div className="d-flex align-items-start gap-2">
+                    <Form.Group controlId="csv-file-input" className="flex-grow-1 mb-0">
+                        <Form.Control
+                            type="file"
+                            accept=".csv"
+                            size="sm"
+                            onChange={handleFileChange}
+                            disabled={loading}
+                            isInvalid={message.type === 'error'}
+                        />
+                        {selectedFile && (
+                            <Form.Text className="d-block mt-1" style={{ fontSize: '0.75rem' }}>
+                                {selectedFile.name} ({(selectedFile.size / 1024).toFixed(2)} KB)
+                            </Form.Text>
+                        )}
+                    </Form.Group>
+
+                    <Button
+                        variant="primary"
+                        type="submit"
+                        size="sm"
+                        disabled={!selectedFile || loading}
+                        style={{ whiteSpace: 'nowrap' }}
+                    >
+                        {loading ? (
+                            <>
+                                <Spinner
+                                    as="span"
+                                    animation="border"
+                                    size="sm"
+                                    role="status"
+                                    aria-hidden="true"
+                                    className="me-1"
+                                />
+                                Uploading...
+                            </>
+                        ) : (
+                            'Upload CSV'
+                        )}
+                    </Button>
+                </div>
+            </Form>
+
+            {message.text && (
+                <Alert
+                    variant={message.type === 'success' ? 'success' : 'danger'}
+                    className="mt-2 mb-0 py-2"
+                    style={{ fontSize: '0.8rem' }}
+                    dismissible
+                    onClose={() => setMessage({ type: '', text: '' })}
+                >
+                    {message.text}
+                </Alert>
             )}
-          </Form.Group>
-
-          <Button
-            variant="primary"
-            type="submit"
-            disabled={!selectedFile || loading}
-            className="w-100"
-          >
-            {loading ? (
-              <>
-                <Spinner
-                  as="span"
-                  animation="border"
-                  size="sm"
-                  role="status"
-                  aria-hidden="true"
-                  className="me-2"
-                />
-                Uploading...
-              </>
-            ) : (
-              'Upload CSV'
-            )}
-          </Button>
-        </Form>
-
-        {message.text && (
-          <Alert
-            variant={message.type === 'success' ? 'success' : 'danger'}
-            className="mt-3 mb-0"
-            dismissible
-            onClose={() => setMessage({ type: '', text: '' })}
-          >
-            {message.text}
-          </Alert>
-        )}
-      </div>
+        </div>
     </div>
-  );
+);
 }

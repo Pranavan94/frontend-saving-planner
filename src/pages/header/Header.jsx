@@ -25,17 +25,17 @@ const Header = () => {
                 <Navbar.Toggle aria-controls="app-navbar-nav" />
                 <Navbar.Collapse id="app-navbar-nav">
                     <Nav className="ms-auto app-navbar-links">
-                         <Nav.Link
+                        <Nav.Link
                             as={Link}
                             to={`/saving-plan-overview/${currentYear}`}
-                            className={savingPlanActive ? "app-navbar-link app-navbar-link-active" : "app-navbar-link"}
+                            className={`${savingPlanActive ? "app-navbar-link app-navbar-link-active" : "app-navbar-link"} text-nowrap`}
                         >
-                            My Saving Plan Overview
+                            Saving Overview
                         </Nav.Link>
                         <NavDropdown
                             title="Information"
                             id="app-info-dropdown"
-                            className={`app-navbar-link app-navbar-dropdown${dropdownActive ? " app-navbar-link-active" : ""}`}
+                            className={`app-navbar-link app-navbar-dropdown text-nowrap${dropdownActive ? " app-navbar-link-active" : ""}`}
                         >
                             <NavDropdown.Item
                                 as={NavLink}

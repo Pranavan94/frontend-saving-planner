@@ -1,0 +1,33 @@
+.saving-plan-action-btn {
+  padding: 0.2rem 0.55rem !important;
+  font-size: 0.8rem !important;
+  font-weight: 600;
+  border-radius: 0.45rem !important;
+  line-height: 1.15;
+}
+
+.saving-plan-action-btn-update {
+  color: #1f4f6e !important;
+  border-color: #9ec7df !important;
+  background-color: #eaf5fc !important;
+}
+
+.saving-plan-action-btn-update:hover,
+.saving-plan-action-btn-update:focus {
+  color: #163a52 !important;
+  border-color: #6ea9cc !important;
+  background-color: #d6ecf8 !important;
+}
+
+.saving-plan-action-btn-delete {
+  color: #8a1f2f !important;
+  border-color: #f1a8b4 !important;
+  background-color: #fff1f3 !important;
+}
+
+.saving-plan-action-btn-delete:hover,
+.saving-plan-action-btn-delete:focus {
+  color: #681724 !important;
+  border-color: #de7d8f !important;
+  background-color: #ffe1e6 !important;
+}

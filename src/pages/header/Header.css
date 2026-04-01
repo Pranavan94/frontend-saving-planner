@@ -71,16 +71,18 @@
 
 /* Dropdown menu panel */
 .app-navbar-dropdown .dropdown-menu {
-  background: #6c757d;
-  border: 1px solid rgba(0, 0, 0, 0.15);
+  --bs-dropdown-link-color: #ffffff;
+  --bs-dropdown-link-hover-color: #ffffff;
+  background: linear-gradient(160deg, var(--nav-bg-start), var(--nav-bg-end));
+  border: 1px solid var(--nav-outline);
   border-radius: 0.5rem;
   margin-top: 0.25rem;
   min-width: 10rem;
+  box-shadow: 0 8px 24px rgba(6, 17, 33, 0.3);
 }
-
 /* Dropdown items */
 .app-dropdown-item {
-  color: var(--nav-text-muted) !important;
+  color: var(--nav-text) !important;
   font-weight: 500;
   padding: 0.45rem 1rem;
   transition: background 0.15s ease, color 0.15s ease;

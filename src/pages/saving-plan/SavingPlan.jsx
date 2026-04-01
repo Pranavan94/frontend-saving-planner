@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { FiEdit2, FiTrash2 } from "react-icons/fi";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
@@ -8,6 +9,7 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import { authFetch } from "../../api/client";
 import CsvUpload from './CsvUpload.jsx';
+import './SavingPlan.css';
 import {
     getMonthlyExpensesTotal,
     normalizeMonthlyExpenses,
@@ -185,7 +187,6 @@ const SavingPlan = () => {
                                 </Form.Select>
                             </Form.Group>
                         </div>
-                        <CsvUpload onUploadSuccess={handleUploadSuccess} />
                         <Table striped bordered hover responsive>
                             <thead>
                                 <tr>
@@ -215,15 +216,31 @@ const SavingPlan = () => {
                                         </td>
                                         <td>{formatCurrencyForView(savingPlan.savings, selectedCurrency)}</td>
                                         <td>{formatCurrencyForView(savingPlan.investments, selectedCurrency)}</td>
-                                        <td>
+                                       <td>
                                             {overBudget && (
                                                 <div className="text-danger small mb-1">
                                                     Exceeds income by {formatCurrencyForView(overspend, selectedCurrency)}
                                                 </div>
                                             )}
-                                            <Button variant="outline-secondary" onClick={() => handleUpdate(savingPlan.id)}>Update</Button>
-                                            <Button variant="outline-danger" onClick={() => handleDelete(savingPlan.id)} className="ms-2">Delete</Button>
-                                        </td>       
+                                            <div className="d-flex gap-1">
+                                                <Button
+                                                    variant="outline-secondary"
+                                                    size="sm"
+                                                    onClick={() => handleUpdate(savingPlan.id)}
+                                                    className="saving-plan-action-btn saving-plan-action-btn-update"
+                                                >
+                                                    <FiEdit2 size={13} />
+                                                </Button>
+                                                <Button
+                                                    variant="outline-danger"
+                                                    size="sm"
+                                                    onClick={() => handleDelete(savingPlan.id)}
+                                                    className="saving-plan-action-btn saving-plan-action-btn-delete"
+                                                >
+                                                    <FiTrash2 size={13} />
+                                                </Button>
+                                            </div>
+                                        </td>     
                                     </tr>
                                     );
                                 })}
@@ -240,9 +257,20 @@ const SavingPlan = () => {
                 </Row>
                 <Row className="mt-4">
                     <Col>
-                        <Button variant="primary" onClick={() => handleAdd()}>
-                            Add New Saving Plan
-                        </Button>
+                        <div className="text-center my-3">
+                            <Button variant="primary" onClick={() => handleAdd()}>
+                                + Add New Saving Plan
+                            </Button>
+                        </div>
+                    </Col>
+                </Row>
+                <Row className="mt-4">
+                    <Col>
+                        <div className="d-flex justify-content-end">
+                            <div style={{ width: '420px' }}>
+                                <CsvUpload onUploadSuccess={handleUploadSuccess} />
+                            </div>
+                        </div>
                     </Col>
                 </Row>
             </Container>
