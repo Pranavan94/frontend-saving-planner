@@ -10,6 +10,9 @@ import {
     createEmptySubscriptionEntry,
     emptyMonthlyExpenses,
     fixedMonthlyExpenseFields,
+    getSameYearCarryForwardSource,
+    isCarryForwardFieldsPristine,
+    mergeCarryForwardExpenses,
     normalizeMonthlyExpenses,
     getMonthlyExpensesTotal,
     toNumericMonthlyExpenses,
@@ -28,6 +31,23 @@ const formatDateForInput = (value) => {
     }
 
     return date.toISOString().split('T')[0];
+};
+
+const formatMonthYear = (value) => {
+    if (!value) {
+        return '';
+    }
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+        return '';
+    }
+
+    return new Intl.DateTimeFormat('en-GB', {
+        month: 'long',
+        year: 'numeric',
+    }).format(date);
 };
 
 const emptyForm = {
@@ -175,6 +195,8 @@ const SavingPlanDetails = () => {
     const [errors, setErrors] = useState({});
     const [touched, setTouched] = useState({});
     const [loading, setLoading] = useState(!isNew);
+    const [allPlans, setAllPlans] = useState([]);
+    const [carryForwardHighlights, setCarryForwardHighlights] = useState(new Set());
     const [entryModal, setEntryModal] = useState({
         show: false,
         section: 'subscriptions',
@@ -200,6 +222,20 @@ const SavingPlanDetails = () => {
         fetchPlan();
     }, [id, isNew]);
 
+    useEffect(() => {
+        const fetchAllPlans = async () => {
+            try {
+                const data = await authFetch('/api/v1/finance/overview');
+                setAllPlans(Array.isArray(data) ? data : data.value || []);
+            } catch (error) {
+                console.error('Error fetching saving plans for carry forward:', error);
+                setAllPlans([]);
+            }
+        };
+
+        fetchAllPlans();
+    }, []);
+
     const handleInputChange = (event) => {
         const { name, value } = event.target;
         const nextFormData = setValueAtPath(formData, name, value);
@@ -207,6 +243,12 @@ const SavingPlanDetails = () => {
         if (touched[name]) {
             setErrors({ ...errors, [name]: validateField(name, value) });
         }
+        setCarryForwardHighlights((prev) => {
+            if (!prev.size || !prev.has(name)) return prev;
+            const next = new Set(prev);
+            next.delete(name);
+            return next;
+        });
     };
 
     const handleBlur = (event) => {
@@ -214,6 +256,47 @@ const SavingPlanDetails = () => {
         setTouched({ ...touched, [name]: true });
         setErrors({ ...errors, [name]: validateField(name, value) });
     };
+
+    const carryForwardSource = getSameYearCarryForwardSource(allPlans, formData.startDate, isNew ? null : id);
+
+    const buildCarryForwardHighlightSet = () => new Set([
+        ...fixedMonthlyExpenseFields.map((f) => `monthlyExpenses.${f.key}`),
+        'insurancePayment',
+        'subscriptions',
+    ]);
+
+    const applyCarryForwardExpenses = () => {
+        if (!carryForwardSource) {
+            return;
+        }
+
+        const nextFormData = {
+            ...formData,
+            monthlyExpenses: mergeCarryForwardExpenses(formData.monthlyExpenses, carryForwardSource),
+        };
+
+        setFormData(nextFormData);
+        setErrors(validateAll(nextFormData));
+        setCarryForwardHighlights(buildCarryForwardHighlightSet());
+    };
+
+    useEffect(() => {
+        if (!isNew || !carryForwardSource || !formData.startDate) {
+            return;
+        }
+
+        if (!isCarryForwardFieldsPristine(formData.monthlyExpenses)) {
+            return;
+        }
+
+        const nextFormData = {
+            ...formData,
+            monthlyExpenses: mergeCarryForwardExpenses(formData.monthlyExpenses, carryForwardSource),
+        };
+
+        setFormData(nextFormData);
+        setCarryForwardHighlights(buildCarryForwardHighlightSet());
+    }, [carryForwardSource, formData, isNew]);
 
     const handleAddNamedAmountEntry = (section) => {
         setEntryModal({
@@ -241,6 +324,12 @@ const SavingPlanDetails = () => {
 
         setFormData(nextFormData);
         setErrors(validateAll(nextFormData));
+        setCarryForwardHighlights((prev) => {
+            if (!prev.has(section)) return prev;
+            const next = new Set(prev);
+            next.delete(section);
+            return next;
+        });
     };
 
     const handleOpenEditModal = (section, index) => {
@@ -331,6 +420,12 @@ const SavingPlanDetails = () => {
         setFormData(nextFormData);
         setErrors(validateAll(nextFormData));
         handleCloseEntryModal();
+        setCarryForwardHighlights((prev) => {
+            if (!prev.has(section)) return prev;
+            const next = new Set(prev);
+            next.delete(section);
+            return next;
+        });
     };
 
     const validateAll = (values) => {
@@ -389,6 +484,7 @@ const SavingPlanDetails = () => {
 
         if (getOverspend(formData) > 0) return;
 
+        setCarryForwardHighlights(new Set());
         try {
             const url = isNew ? '/api/v1/finance/overview/create' : `/api/v1/finance/overview/${id}`;
 
@@ -427,7 +523,7 @@ const SavingPlanDetails = () => {
     ];
 
     const renderField = ({ name, label, type }) => (
-        <Form.Group controlId={`form-${name.replace(/\./g, '-')}`} key={name}>
+        <Form.Group controlId={`form-${name.replace(/\./g, '-')}`} key={name} className={carryForwardHighlights.has(name) ? 'cf-highlight-field' : undefined}>
             <Form.Label>{label}</Form.Label>
             <Form.Control
                 type={type}
@@ -461,7 +557,7 @@ const SavingPlanDetails = () => {
                         Add {config.singularTitle}
                     </Button>
                 </div>
-                <div className="named-amount-list">
+                <div className={`named-amount-list${carryForwardHighlights.has(section) ? ' cf-highlight-section' : ''}`}>
                     {entries.map((entry, index) => {
                         const amountPath = getNamedAmountPath(section, index, 'amountCost');
 
@@ -520,6 +616,21 @@ const SavingPlanDetails = () => {
                             <div>
                                 <h2>Monthly Expenses</h2>
                                 <p>Organized as a nested object with fixed, variable, and subscription costs.</p>
+                                {carryForwardSource && (
+                                    <div className="carry-forward-hint">
+                                        <span>
+                                            Use the latest plan from {formatMonthYear(carryForwardSource.startDate || carryForwardSource.endDate)} to copy recurring expenses into this month.
+                                        </span>
+                                        <Button
+                                            variant="outline-primary"
+                                            size="sm"
+                                            type="button"
+                                            onClick={applyCarryForwardExpenses}
+                                        >
+                                            Apply Same-Year Expenses
+                                        </Button>
+                                    </div>
+                                )}
                             </div>
                             <div className="expense-total">
                                 Total: {new Intl.NumberFormat('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(getMonthlyExpensesTotal(formData.monthlyExpenses))}

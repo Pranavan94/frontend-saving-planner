@@ -186,6 +186,16 @@ const SavingPlanExpenses = () => {
                         </Card.Body>
                     </Card>
                 </Col>
+                                <Col md={6} lg={3}>
+                    <Card className="expense-summary-card">
+                        <Card.Body>
+                            <Card.Subtitle className="text-muted">Saving & Investment</Card.Subtitle>
+                            <Card.Title className="text-success">
+                                {formatCurrencyForView(plan.savings + plan.investments, selectedCurrency)}
+                            </Card.Title>
+                        </Card.Body>
+                    </Card>
+                </Col>
                 <Col md={6} lg={3}>
                     <Card className={`expense-summary-card ${overBudget ? 'expense-summary-card-alert' : ''}`}>
                         <Card.Body>
@@ -203,14 +213,16 @@ const SavingPlanExpenses = () => {
             <Row className="g-3 mb-3">
                 <Col lg={6}>
                     <Card className="h-100">
-                        <Card.Header>Fixed Expenses</Card.Header>
+                        <Card.Header className="d-flex align-items-center gap-2 fw-bold">
+                            <span>Fixed Expenses</span>
+                        </Card.Header>
                         <Card.Body className="p-0">
                             <Table responsive className="mb-0">
                                 <tbody>
                                     {fixedMonthlyExpenseFields.map((field) => (
                                         <tr key={field.key}>
-                                            <th>{field.label}</th>
-                                            <td className="text-end text-danger fw-bold">{monthlyExpensesTotal > 0 ? '-' : ''}{formatCurrencyForView(monthlyExpenses[field.key], selectedCurrency)}</td>
+                                            <th className="fw-normal">{field.label}</th>
+                                            <td className="text-end text-danger fw-semibold">{monthlyExpensesTotal > 0 ? '-' : ''}{formatCurrencyForView(monthlyExpenses[field.key], selectedCurrency)}</td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -220,14 +232,16 @@ const SavingPlanExpenses = () => {
                 </Col>
                 <Col lg={6}>
                     <Card className="h-100">
-                        <Card.Header>Variable Expenses</Card.Header>
+                        <Card.Header className="d-flex align-items-center gap-2 fw-bold">
+                            <span>Variable Expenses</span>
+                        </Card.Header>
                         <Card.Body className="p-0">
                             <Table responsive className="mb-0">
                                 <tbody>
                                     {variableMonthlyExpenseFields.map((field) => (
                                         <tr key={field.key}>
-                                            <th>{field.label}</th>
-                                            <td className="text-end text-danger fw-bold">{monthlyExpensesTotal > 0 ? '-' : ''}{formatCurrencyForView(monthlyExpenses[field.key], selectedCurrency)}</td>
+                                            <th className="fw-normal">{field.label}</th>
+                                            <td className="text-end text-danger fw-semibold">{monthlyExpensesTotal > 0 ? '-' : ''}{formatCurrencyForView(monthlyExpenses[field.key], selectedCurrency)}</td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -240,16 +254,19 @@ const SavingPlanExpenses = () => {
             <Row className="g-3 mb-3">
                 <Col lg={6}>
                     <Card className="h-100">
-                        <Card.Header>
-                            Insurance Payments ({formatCurrencyForView(getInsuranceTotal(monthlyExpenses), selectedCurrency)})
+                        <Card.Header className="d-flex align-items-center gap-2 fw-bold">
+                            <span>Insurance Payments</span>
+                            <span className="text-danger fw-semibold">
+                                ({monthlyExpensesTotal > 0 ? '-' : ''}{formatCurrencyForView(getInsuranceTotal(monthlyExpenses), selectedCurrency)})
+                            </span>
                         </Card.Header>
                         <Card.Body className="p-0">
                             <Table responsive className="mb-0">
                                 <thead>
                                     <tr>
-                                        <th>Insurance Type</th>
-                                        <th>Company</th>
-                                        <th className="text-end">Cost</th>
+                                        <th className="fw-semibold">Insurance Type</th>
+                                        <th className="fw-semibold">Company</th>
+                                        <th className="text-end fw-semibold">Cost</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -257,7 +274,7 @@ const SavingPlanExpenses = () => {
                                         <tr key={`insurance-${index}`}>
                                             <td>{item.name || 'Unnamed insurance'}</td>
                                             <td>{item.companyName || '-'}</td>
-                                            <td className="text-end">{formatCurrencyForView(item.amountCost, selectedCurrency)}</td>
+                                            <td className="text-end text-danger fw-semibold">{monthlyExpensesTotal > 0 ? '-' : ''}{formatCurrencyForView(item.amountCost, selectedCurrency)}</td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -267,22 +284,25 @@ const SavingPlanExpenses = () => {
                 </Col>
                 <Col lg={6}>
                     <Card className="h-100">
-                        <Card.Header>
-                            Subscriptions ({formatCurrencyForView(getSubscriptionsTotal(monthlyExpenses), selectedCurrency)})
+                        <Card.Header className="d-flex align-items-center gap-2 fw-bold">
+                            <span>Subscriptions</span>
+                            <span className="text-danger fw-semibold">
+                                ({monthlyExpensesTotal > 0 ? '-' : ''}{formatCurrencyForView(getSubscriptionsTotal(monthlyExpenses), selectedCurrency)})
+                            </span>
                         </Card.Header>
                         <Card.Body className="p-0">
                             <Table responsive className="mb-0">
                                 <thead>
                                     <tr>
-                                        <th>Subscription</th>
-                                        <th className="text-end">Cost</th>
+                                        <th className="fw-semibold">Subscription</th>
+                                        <th className="text-end fw-semibold">Cost</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {monthlyExpenses.subscriptions.map((item, index) => (
                                         <tr key={`subscription-${index}`}>
                                             <td>{item.name || 'Unnamed subscription'}</td>
-                                            <td className="text-end">{formatCurrencyForView(item.amountCost, selectedCurrency)}</td>
+                                            <td className="text-end text-danger fw-semibold">{monthlyExpensesTotal > 0 ? '-' : ''}{formatCurrencyForView(item.amountCost, selectedCurrency)}</td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -293,11 +313,11 @@ const SavingPlanExpenses = () => {
             </Row>
 
             <Card>
-                <Card.Header>Allocation Summary</Card.Header>
+                <Card.Header className="fw-bold">Allocation Summary</Card.Header>
                 <Card.Body>
                     <div className="expense-summary-row">
                         <span className="text-danger">Monthly Expenses</span>
-                        <strong className="text-danger">{formatCurrencyForView(monthlyExpensesTotal, selectedCurrency)}</strong>
+                        <strong className="text-danger">{monthlyExpensesTotal > 0 ? '-' : ''}{formatCurrencyForView(monthlyExpensesTotal, selectedCurrency)}</strong>
                     </div>
                     <div className="expense-summary-row">
                         <span className="text-success">Savings</span>
@@ -309,7 +329,7 @@ const SavingPlanExpenses = () => {
                     </div>
                     <hr />
                     <div className="expense-summary-row">
-                        <span>Total Allocated</span>
+                        <span className="fw-semibold">Total Allocated</span>
                         <strong>{formatCurrencyForView(totalAllocated, selectedCurrency)}</strong>
                     </div>
                 </Card.Body>

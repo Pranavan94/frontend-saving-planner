@@ -102,25 +102,16 @@
   font-weight: 700;
 }
 
-/* Logout button styling */
-.app-navbar .btn-danger {
-  background-color: #dc3545 !important;
-  border: none !important;
-  color: white !important;
-  font-weight: 600;
-  font-size: 0.95rem;
-  padding: 0.25rem 0.6rem !important;
-  border-radius: 999px;
-  margin-left: 1rem;
-  transition: background-color 0.2s ease, transform 0.2s ease;
-  height: auto;
+.app-navbar-logout-btn {
+  background: transparent;
+  border: none;
+  padding: 0.5rem 1rem;
   line-height: 1.2;
 }
 
-.app-navbar .btn-danger:hover,
-.app-navbar .btn-danger:focus {
-  background-color: #c82333 !important;
-  transform: translateY(-1px);
+.app-navbar-logout-btn:hover,
+.app-navbar-logout-btn:focus-visible {
+  background: transparent;
 }
 
 @media (max-width: 991px) {
@@ -143,7 +134,7 @@
     padding-left: 0.75rem;
   }
 
-  .app-navbar .btn-danger {
+  .app-navbar-logout-btn {
     margin-left: 0;
     margin-top: 0.25rem;
   }

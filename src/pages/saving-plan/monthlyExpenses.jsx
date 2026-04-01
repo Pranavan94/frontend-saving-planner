@@ -39,6 +39,8 @@ export const emptyMonthlyExpenses = {
 const getObject = (value) => (value && typeof value === 'object' ? value : {});
 const getArray = (value) => (Array.isArray(value) ? value : []);
 
+const isBlankValue = (value) => value === '' || value === null || value === undefined;
+
 const getNestedNumber = (value) => {
     const numericValue = Number(value);
     return Number.isNaN(numericValue) ? 0 : numericValue;
@@ -148,6 +150,88 @@ export const getSubscriptionsTotal = (monthlyExpenses) =>
 export const createEmptySubscriptionEntry = () => ({ ...emptySubscriptionEntry });
 
 export const createEmptyInsuranceEntry = () => ({ ...emptyInsuranceEntry });
+
+// Checks whether the carry-forward fields (fixed, insurance, subscriptions) are still blank.
+// Variable expenses are intentionally excluded — they always differ month to month.
+export const isCarryForwardFieldsPristine = (monthlyExpenses) => {
+    const normalized = normalizeMonthlyExpenses(monthlyExpenses);
+
+    const hasFixedValues = fixedMonthlyExpenseFields.some((field) => !isBlankValue(normalized[field.key]));
+
+    if (hasFixedValues) {
+        return false;
+    }
+
+    const hasInsuranceValues = getArray(normalized.insurancePayment).some((entry) => (
+        !isBlankValue(entry?.name)
+        || !isBlankValue(entry?.companyName)
+        || !isBlankValue(entry?.amountCost)
+    ));
+
+    if (hasInsuranceValues) {
+        return false;
+    }
+
+    const hasSubscriptionValues = getArray(normalized.subscriptions).some((entry) => (
+        !isBlankValue(entry?.name)
+        || !isBlankValue(entry?.amountCost)
+    ));
+
+    return !hasSubscriptionValues;
+};
+
+// Merges only fixed expenses, insurance and subscriptions from a source plan into
+// the current monthly expenses, leaving variable expenses untouched.
+export const mergeCarryForwardExpenses = (currentMonthlyExpenses, sourcePlan) => {
+    const current = normalizeMonthlyExpenses(currentMonthlyExpenses);
+    const source = normalizeMonthlyExpenses(sourcePlan?.monthlyExpenses, sourcePlan);
+
+    const fixedValues = {};
+    fixedMonthlyExpenseFields.forEach((field) => {
+        fixedValues[field.key] = source[field.key];
+    });
+
+    return {
+        ...current,
+        ...fixedValues,
+        insurancePayment: source.insurancePayment,
+        subscriptions: source.subscriptions,
+    };
+};
+
+const getPlanReferenceDate = (plan) => {
+    const sourceDate = plan?.startDate ?? plan?.endDate;
+
+    if (!sourceDate) {
+        return null;
+    }
+
+    const date = new Date(sourceDate);
+
+    return Number.isNaN(date.getTime()) ? null : date;
+};
+
+export const getSameYearCarryForwardSource = (plans, startDateValue, excludedPlanId = null) => {
+    if (!startDateValue) {
+        return null;
+    }
+
+    const selectedDate = new Date(startDateValue);
+
+    if (Number.isNaN(selectedDate.getTime())) {
+        return null;
+    }
+
+    return getArray(plans)
+        .filter((plan) => String(plan?.id ?? '') !== String(excludedPlanId ?? ''))
+        .map((plan) => ({
+            plan,
+            referenceDate: getPlanReferenceDate(plan),
+        }))
+        .filter(({ referenceDate }) => referenceDate && referenceDate < selectedDate)
+        .filter(({ referenceDate }) => referenceDate.getFullYear() === selectedDate.getFullYear())
+        .sort((left, right) => right.referenceDate.getTime() - left.referenceDate.getTime())[0]?.plan ?? null;
+};
 
 
 export const getMonthlyExpensesTotal = (monthlyExpenses) => {

@@ -7,7 +7,7 @@ export default function LogoutButton() {
   };
 
   return (
-    <button onClick={handleLogout} className="btn btn-danger">
+    <button onClick={handleLogout} className="app-navbar-link app-navbar-logout-btn text-nowrap" type="button">
       Logout
     </button>
   );
