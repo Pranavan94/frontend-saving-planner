@@ -34,7 +34,6 @@ const emptyForm = {
     startDate: '',
     endDate: '',
     monthlyIncome: '',
-    consumption: '',
     savings: '',
     investments: '',
     monthlyExpenses: emptyMonthlyExpenses,
@@ -61,8 +60,7 @@ const requiredMonthlyExpensePaths = [
 ];
 
 const getTotalExpenses = (values) =>
-    (Number(values.consumption) || 0)
-    + (Number(values.savings) || 0)
+    (Number(values.savings) || 0)
     + (Number(values.investments) || 0)
     + getMonthlyExpensesTotal(values.monthlyExpenses);
 
@@ -102,7 +100,6 @@ const normalizeSavingPlanForm = (data = {}) => ({
     startDate: formatDateForInput(data.startDate),
     endDate: formatDateForInput(data.endDate),
     monthlyIncome: data.monthlyIncome ?? '',
-    consumption: data.consumption ?? '',
     savings: data.savings ?? '',
     investments: data.investments ?? '',
     monthlyExpenses: normalizeMonthlyExpenses(data.monthlyExpenses, data),
@@ -114,7 +111,6 @@ const validateField = (name, value) => {
     }
     const numericFields = [
         'monthlyIncome',
-        'consumption',
         'savings',
         'investments',
         ...recurringExpensePaths,
@@ -343,7 +339,6 @@ const SavingPlanDetails = () => {
             'startDate',
             'endDate',
             'monthlyIncome',
-            'consumption',
             'savings',
             'investments',
             ...recurringExpensePaths,
@@ -369,7 +364,6 @@ const SavingPlanDetails = () => {
                 startDate: true,
                 endDate: true,
                 monthlyIncome: true,
-                consumption: true,
                 savings: true,
                 investments: true,
                 ...recurringExpensePaths.reduce((acc, key) => ({ ...acc, [key]: true }), {}),
@@ -403,7 +397,6 @@ const SavingPlanDetails = () => {
                 startDate: formData.startDate ? new Date(formData.startDate).toISOString() : null,
                 endDate: formData.endDate ? new Date(formData.endDate).toISOString() : null,
                 monthlyIncome: Number(formData.monthlyIncome),
-                consumption: Number(formData.consumption),
                 savings: Number(formData.savings),
                 investments: Number(formData.investments),
                 monthlyExpenses: toNumericMonthlyExpenses(formData.monthlyExpenses),
@@ -429,7 +422,6 @@ const SavingPlanDetails = () => {
         { name: 'startDate', label: 'Start Date', type: 'date' },
         { name: 'endDate', label: 'End Date', type: 'date' },
         { name: 'monthlyIncome', label: 'Monthly Income', type: 'number' },
-        { name: 'consumption', label: 'Consumption', type: 'number' },
         { name: 'savings', label: 'Savings', type: 'number' },
         { name: 'investments', label: 'Investments', type: 'number' },
     ];

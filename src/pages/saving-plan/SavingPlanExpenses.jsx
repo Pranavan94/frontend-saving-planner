@@ -129,7 +129,6 @@ const SavingPlanExpenses = () => {
     const monthlyExpenses = normalizeMonthlyExpenses(plan.monthlyExpenses, plan);
     const monthlyExpensesTotal = getMonthlyExpensesTotal(monthlyExpenses);
     const totalAllocated = monthlyExpensesTotal
-        + (Number(plan.consumption) || 0)
         + (Number(plan.savings) || 0)
         + (Number(plan.investments) || 0);
     const overspend = totalAllocated - (Number(plan.monthlyIncome) || 0);
@@ -182,14 +181,6 @@ const SavingPlanExpenses = () => {
                         <Card.Body>
                             <Card.Subtitle className="text-muted">Monthly Expenses</Card.Subtitle>
                             <Card.Title>{formatCurrencyForView(monthlyExpensesTotal, selectedCurrency)}</Card.Title>
-                        </Card.Body>
-                    </Card>
-                </Col>
-                <Col md={6} lg={3}>
-                    <Card className="expense-summary-card">
-                        <Card.Body>
-                            <Card.Subtitle className="text-muted">Consumption</Card.Subtitle>
-                            <Card.Title>{formatCurrencyForView(plan.consumption, selectedCurrency)}</Card.Title>
                         </Card.Body>
                     </Card>
                 </Col>
@@ -305,10 +296,6 @@ const SavingPlanExpenses = () => {
                     <div className="expense-summary-row">
                         <span>Monthly Expenses</span>
                         <strong>{formatCurrencyForView(monthlyExpensesTotal, selectedCurrency)}</strong>
-                    </div>
-                    <div className="expense-summary-row">
-                        <span>Consumption</span>
-                        <strong>{formatCurrencyForView(plan.consumption, selectedCurrency)}</strong>
                     </div>
                     <div className="expense-summary-row">
                         <span>Savings</span>

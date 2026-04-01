@@ -67,8 +67,7 @@ const formatCurrencyForView = (value, currency) => {
 };
 
 const getTotalExpenses = (plan) =>
-    (Number(plan.consumption) || 0)
-    + (Number(plan.savings) || 0)
+    (Number(plan.savings) || 0)
     + (Number(plan.investments) || 0)
     + getMonthlyExpensesTotal(normalizeMonthlyExpenses(plan.monthlyExpenses, plan));
 
@@ -194,7 +193,6 @@ const SavingPlan = () => {
                                     <th>End Date</th>
                                     <th>Monthly Income</th>
                                     <th>Monthly Expenses</th>
-                                    <th>Consumption</th>
                                     <th>Savings</th>
                                     <th>Investments</th>
                                     <th>Actions</th>
@@ -215,7 +213,6 @@ const SavingPlan = () => {
                                                 {formatCurrencyForView(getMonthlyExpensesTotal(monthlyExpenses), selectedCurrency)}
                                             </Link>
                                         </td>
-                                        <td>{formatCurrencyForView(savingPlan.consumption, selectedCurrency)}</td>
                                         <td>{formatCurrencyForView(savingPlan.savings, selectedCurrency)}</td>
                                         <td>{formatCurrencyForView(savingPlan.investments, selectedCurrency)}</td>
                                         <td>
