@@ -172,7 +172,7 @@ const SavingPlanExpenses = () => {
                     <Card className="expense-summary-card">
                         <Card.Body>
                             <Card.Subtitle className="text-muted">Monthly Income</Card.Subtitle>
-                            <Card.Title>{formatCurrencyForView(plan.monthlyIncome, selectedCurrency)}</Card.Title>
+                            <Card.Title className="text-success">{formatCurrencyForView(plan.monthlyIncome, selectedCurrency)}</Card.Title>
                         </Card.Body>
                     </Card>
                 </Col>
@@ -180,7 +180,9 @@ const SavingPlanExpenses = () => {
                     <Card className="expense-summary-card">
                         <Card.Body>
                             <Card.Subtitle className="text-muted">Monthly Expenses</Card.Subtitle>
-                            <Card.Title>{formatCurrencyForView(monthlyExpensesTotal, selectedCurrency)}</Card.Title>
+                            <Card.Title className="text-danger">
+                                {monthlyExpensesTotal > 0 ? '-' : ''}{formatCurrencyForView(monthlyExpensesTotal, selectedCurrency)}
+                            </Card.Title>
                         </Card.Body>
                     </Card>
                 </Col>
@@ -188,7 +190,7 @@ const SavingPlanExpenses = () => {
                     <Card className={`expense-summary-card ${overBudget ? 'expense-summary-card-alert' : ''}`}>
                         <Card.Body>
                             <Card.Subtitle className="text-muted">Budget Status</Card.Subtitle>
-                            <Card.Title>
+                            <Card.Title className={overBudget ? 'text-danger' : 'text-success'}>
                                 {overBudget
                                     ? `Over by ${formatCurrencyForView(overspend, selectedCurrency)}`
                                     : `Within budget by ${formatCurrencyForView(Math.abs(overspend), selectedCurrency)}`}
@@ -208,7 +210,7 @@ const SavingPlanExpenses = () => {
                                     {fixedMonthlyExpenseFields.map((field) => (
                                         <tr key={field.key}>
                                             <th>{field.label}</th>
-                                            <td className="text-end">{formatCurrencyForView(monthlyExpenses[field.key], selectedCurrency)}</td>
+                                            <td className="text-end text-danger fw-bold">{monthlyExpensesTotal > 0 ? '-' : ''}{formatCurrencyForView(monthlyExpenses[field.key], selectedCurrency)}</td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -225,7 +227,7 @@ const SavingPlanExpenses = () => {
                                     {variableMonthlyExpenseFields.map((field) => (
                                         <tr key={field.key}>
                                             <th>{field.label}</th>
-                                            <td className="text-end">{formatCurrencyForView(monthlyExpenses[field.key], selectedCurrency)}</td>
+                                            <td className="text-end text-danger fw-bold">{monthlyExpensesTotal > 0 ? '-' : ''}{formatCurrencyForView(monthlyExpenses[field.key], selectedCurrency)}</td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -294,16 +296,16 @@ const SavingPlanExpenses = () => {
                 <Card.Header>Allocation Summary</Card.Header>
                 <Card.Body>
                     <div className="expense-summary-row">
-                        <span>Monthly Expenses</span>
-                        <strong>{formatCurrencyForView(monthlyExpensesTotal, selectedCurrency)}</strong>
+                        <span className="text-danger">Monthly Expenses</span>
+                        <strong className="text-danger">{formatCurrencyForView(monthlyExpensesTotal, selectedCurrency)}</strong>
                     </div>
                     <div className="expense-summary-row">
-                        <span>Savings</span>
-                        <strong>{formatCurrencyForView(plan.savings, selectedCurrency)}</strong>
+                        <span className="text-success">Savings</span>
+                        <strong className="text-success">{formatCurrencyForView(plan.savings, selectedCurrency)}</strong>
                     </div>
                     <div className="expense-summary-row">
-                        <span>Investments</span>
-                        <strong>{formatCurrencyForView(plan.investments, selectedCurrency)}</strong>
+                        <span className="text-success">Investments</span>
+                        <strong className="text-success">{formatCurrencyForView(plan.investments, selectedCurrency)}</strong>
                     </div>
                     <hr />
                     <div className="expense-summary-row">
