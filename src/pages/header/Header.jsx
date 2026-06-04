@@ -4,7 +4,7 @@ import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import NavDropdown from "react-bootstrap/NavDropdown";
 import { Link, NavLink, useLocation } from "react-router-dom";
-import { FiBarChart2, FiCompass, FiGrid, FiStar } from "react-icons/fi";
+import { FiBarChart2, FiCompass, FiGrid, FiStar, FiTarget, FiTrendingUp } from "react-icons/fi";
 import LogoutButton from "../login/LogoutButton.jsx";
 import './Header.css';
 
@@ -34,6 +34,34 @@ const Header = () => {
                             <span className="app-navbar-link-content">
                                 <span className="app-navbar-link-icon" aria-hidden="true"><FiBarChart2 size={14} /></span>
                                 <span>Saving Overview</span>
+                            </span>
+                        </Nav.Link>
+                        <Nav.Link
+                            as={NavLink}
+                            to="/savings-purpose"
+                            className={({ isActive }) =>
+                                isActive
+                                    ? "app-navbar-link text-nowrap app-navbar-purpose-invest-link app-navbar-link-active"
+                                    : "app-navbar-link text-nowrap app-navbar-purpose-invest-link"
+                            }
+                        >
+                            <span className="app-navbar-link-content app-navbar-purpose-invest-content">
+                                <span className="app-navbar-link-icon" aria-hidden="true"><FiTarget size={14} /></span>
+                                <span>Savings Purpose</span>
+                            </span>
+                        </Nav.Link>
+                        <Nav.Link
+                            as={NavLink}
+                            to="/investment-goals"
+                            className={({ isActive }) =>
+                                isActive
+                                    ? "app-navbar-link text-nowrap app-navbar-purpose-invest-link app-navbar-link-active"
+                                    : "app-navbar-link text-nowrap app-navbar-purpose-invest-link"
+                            }
+                        >
+                            <span className="app-navbar-link-content app-navbar-purpose-invest-content">
+                                <span className="app-navbar-link-icon" aria-hidden="true"><FiTrendingUp size={14} /></span>
+                                <span>Investment Goals</span>
                             </span>
                         </Nav.Link>
                         <NavDropdown

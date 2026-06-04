@@ -9,6 +9,8 @@ import UpdateUser from './pages/user/UpdateUser.jsx';
 import SavingPlan from './pages/saving-plan/SavingPlan.jsx';
 import SavingPlanDetails from './pages/saving-plan/SavingPlanDetails.jsx';
 import SavingPlanExpenses from './pages/saving-plan/SavingPlanExpenses.jsx';
+import SavingsPurpose from './pages/savings-purpose/SavingsPurpose.jsx';
+import InvestmentGoals from './pages/investment-goals/InvestmentGoals.jsx';
 import LoginForm from './pages/login/LoginForm.jsx';
 import { getAccessToken } from './api/auth.js';
 
@@ -36,6 +38,8 @@ function App() {
         <Route path="/saving-plan-overview/:year" element={<ProtectedRoute element={<SavingPlan />} />} />
         <Route path="/saving-plan-details/:id" element={<ProtectedRoute element={<SavingPlanDetails />} />} />
         <Route path="/saving-plan-expenses/:id" element={<ProtectedRoute element={<SavingPlanExpenses />} />} />
+        <Route path="/savings-purpose" element={<ProtectedRoute element={<SavingsPurpose />} />} />
+        <Route path="/investment-goals" element={<ProtectedRoute element={<InvestmentGoals />} />} />
         <Route path="/user-details" element={<ProtectedRoute element={<PostUser />} />} />
         <Route path="/user-details/:id" element={<ProtectedRoute element={<UpdateUser />} />} />
         <Route path="*" element={<NoMatch/>} />
