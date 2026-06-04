@@ -11,9 +11,6 @@ import './Header.css';
 const Header = () => {
     const { pathname } = useLocation();
     const dropdownActive = pathname === "/" || pathname === "/user-details";
-    const savingPlanActive = pathname.startsWith("/saving-plan-overview")
-        || pathname.startsWith('/saving-plan-details')
-        || pathname.startsWith('/saving-plan-expenses');
     const currentYear = new Date().getFullYear();
 
     return (
