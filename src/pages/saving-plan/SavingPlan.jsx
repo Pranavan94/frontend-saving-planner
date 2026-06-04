@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { FiEdit2, FiTrash2 } from "react-icons/fi";
+import { FiActivity, FiAlertTriangle, FiDollarSign, FiEdit2, FiTrash2 } from "react-icons/fi";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
@@ -110,6 +110,44 @@ const SavingPlan = () => {
         ? availableYears
         : [activeYear, ...availableYears].sort((left, right) => Number(right) - Number(left));
     const filteredSavingPlan = savingPlan.filter((plan) => getPlanYear(plan) === activeYear);
+    const totalPlans = filteredSavingPlan.length;
+    const overBudgetCount = filteredSavingPlan.filter((plan) => isOverBudget(plan)).length;
+    const totalMonthlyIncome = filteredSavingPlan.reduce(
+        (sum, plan) => sum + (Number(plan.monthlyIncome) || 0),
+        0
+    );
+    const totalMonthlyExpenses = filteredSavingPlan.reduce(
+        (sum, plan) => sum + getMonthlyExpensesTotal(normalizeMonthlyExpenses(plan.monthlyExpenses, plan)),
+        0
+    );
+
+    const summaryCards = [
+        {
+            key: 'plans',
+            label: 'Plans This Year',
+            value: String(totalPlans),
+            icon: <FiActivity size={18} />,
+        },
+        {
+            key: 'income',
+            label: 'Total Monthly Income',
+            value: formatCurrencyForView(totalMonthlyIncome, selectedCurrency),
+            icon: <FiDollarSign size={18} />,
+        },
+        {
+            key: 'expenses',
+            label: 'Total Monthly Expenses',
+            value: formatCurrencyForView(totalMonthlyExpenses, selectedCurrency),
+            icon: <FiDollarSign size={18} />,
+        },
+        {
+            key: 'risk',
+            label: 'Over Budget Plans',
+            value: String(overBudgetCount),
+            icon: <FiAlertTriangle size={18} />,
+            alert: overBudgetCount > 0,
+        },
+    ];
 
         const fetchSavingPlan = async () => {
             try {
@@ -154,128 +192,145 @@ const SavingPlan = () => {
     };
 
     return (
-    <>
-            <Container className="mt-5">
-                <Row>
-                    <Col>
-                        <h1 className="text-center">My Saving Plan Overview {activeYear}</h1>
-                        <div className="d-flex justify-content-end align-items-end gap-3 mb-3 flex-wrap">
-                            <Form.Group controlId="year-select">
-                                <Form.Label className="mb-1">Year</Form.Label>
-                                <Form.Select
-                                    value={activeYear}
-                                    onChange={handleYearChange}
-                                >
-                                    {yearOptions.map((optionYear) => (
-                                        <option key={optionYear} value={optionYear}>
-                                            {optionYear}
-                                        </option>
-                                    ))}
-                                </Form.Select>
-                            </Form.Group>
-                            <Form.Group controlId="currency-select">
-                                <Form.Label className="mb-1">Display currency</Form.Label>
-                                <Form.Select
-                                    value={selectedCurrency}
-                                    onChange={(event) => setSelectedCurrency(event.target.value)}
-                                >
-                                    {currencyOptions.map((currency) => (
-                                        <option key={currency.code} value={currency.code}>
-                                            {currency.label} ({currency.code})
-                                        </option>
-                                    ))}
-                                </Form.Select>
-                            </Form.Group>
+        <Container className="saving-overview-page py-4">
+            <section className="saving-overview-hero">
+                <div>
+                    <div className="saving-overview-eyebrow">Financial Planner</div>
+                    <h1>Saving Plan Overview</h1>
+                    <p>Track each month quickly and spot budget risks before they become problems.</p>
+                </div>
+                <div className="saving-overview-hero-actions">
+                    <span className="saving-overview-year-badge">Year {activeYear}</span>
+                    <Button variant="primary" className="saving-overview-add-btn" onClick={handleAdd}>
+                        + Add New Saving Plan
+                    </Button>
+                </div>
+            </section>
+
+            <section className="saving-overview-toolbar">
+                <div className="saving-overview-toolbar-controls">
+                    <Form.Group controlId="year-select">
+                        <Form.Label className="mb-1">Year</Form.Label>
+                        <Form.Select
+                            value={activeYear}
+                            onChange={handleYearChange}
+                        >
+                            {yearOptions.map((optionYear) => (
+                                <option key={optionYear} value={optionYear}>
+                                    {optionYear}
+                                </option>
+                            ))}
+                        </Form.Select>
+                    </Form.Group>
+                    <Form.Group controlId="currency-select">
+                        <Form.Label className="mb-1">Display currency</Form.Label>
+                        <Form.Select
+                            value={selectedCurrency}
+                            onChange={(event) => setSelectedCurrency(event.target.value)}
+                        >
+                            {currencyOptions.map((currency) => (
+                                <option key={currency.code} value={currency.code}>
+                                    {currency.label} ({currency.code})
+                                </option>
+                            ))}
+                        </Form.Select>
+                    </Form.Group>
+                </div>
+                <div className="saving-overview-csv-wrap">
+                    <CsvUpload onUploadSuccess={handleUploadSuccess} />
+                </div>
+            </section>
+
+            <Row className="g-3 mb-4">
+                {summaryCards.map((card) => (
+                    <Col md={6} lg={3} key={card.key}>
+                        <div className={`saving-summary-card${card.alert ? ' saving-summary-card-alert' : ''}`}>
+                            <div className="saving-summary-icon">{card.icon}</div>
+                            <div className="saving-summary-label">{card.label}</div>
+                            <div className="saving-summary-value">{card.value}</div>
                         </div>
-                        <Table striped bordered hover responsive>
-                            <thead>
-                                <tr>
-                                    <th>Start Date</th>
-                                    <th>End Date</th>
-                                    <th>Monthly Income</th>
-                                    <th>Monthly Expenses</th>
-                                    <th>Savings</th>
-                                    <th>Investments</th>
-                                    <th>Actions</th>
+                    </Col>
+                ))}
+            </Row>
+
+            <section className="saving-overview-table-shell">
+                <Table responsive className="saving-overview-table">
+                    <thead>
+                        <tr>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Monthly Income</th>
+                            <th>Monthly Expenses</th>
+                            <th>Savings</th>
+                            <th>Investments</th>
+                            <th>Budget Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {filteredSavingPlan.map((plan) => {
+                            const overBudget = isOverBudget(plan);
+                            const overspend = getTotalExpenses(plan) - (Number(plan.monthlyIncome) || 0);
+                            const monthlyExpenses = normalizeMonthlyExpenses(plan.monthlyExpenses, plan);
+
+                            return (
+                                <tr key={plan.id} className={overBudget ? 'saving-over-budget-row' : undefined}>
+                                    <td>{formatDateForView(plan.startDate)}</td>
+                                    <td>{formatDateForView(plan.endDate)}</td>
+                                    <td>{formatCurrencyForView(plan.monthlyIncome, selectedCurrency)}</td>
+                                    <td>
+                                        <Link to={`/saving-plan-expenses/${plan.id}`} className="saving-overview-expense-link">
+                                            {formatCurrencyForView(getMonthlyExpensesTotal(monthlyExpenses), selectedCurrency)}
+                                        </Link>
+                                    </td>
+                                    <td>{formatCurrencyForView(plan.savings, selectedCurrency)}</td>
+                                    <td>{formatCurrencyForView(plan.investments, selectedCurrency)}</td>
+                                    <td>
+                                        <span className={`saving-status-chip${overBudget ? ' saving-status-chip-danger' : ' saving-status-chip-ok'}`}>
+                                            {overBudget
+                                                ? `Over by ${formatCurrencyForView(overspend, selectedCurrency)}`
+                                                : 'On Track'}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div className="d-flex gap-2">
+                                            <Button
+                                                variant="outline-secondary"
+                                                size="sm"
+                                                title="Edit plan"
+                                                onClick={() => handleUpdate(plan.id)}
+                                                className="saving-plan-action-btn saving-plan-action-btn-update"
+                                            >
+                                                <FiEdit2 size={14} />
+                                            </Button>
+                                            <Button
+                                                variant="outline-danger"
+                                                size="sm"
+                                                title="Delete plan"
+                                                onClick={() => handleDelete(plan.id)}
+                                                className="saving-plan-action-btn saving-plan-action-btn-delete"
+                                            >
+                                                <FiTrash2 size={14} />
+                                            </Button>
+                                        </div>
+                                    </td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                {filteredSavingPlan.map(savingPlan => {
-                                    const overBudget = isOverBudget(savingPlan);
-                                    const overspend = getTotalExpenses(savingPlan) - (Number(savingPlan.monthlyIncome) || 0);
-                                    const monthlyExpenses = normalizeMonthlyExpenses(savingPlan.monthlyExpenses, savingPlan);
-                                    return (
-                                    <tr key={savingPlan.id} className={overBudget ? 'table-danger' : ''}>
-                                        <td>{formatDateForView(savingPlan.startDate)}</td>
-                                        <td>{formatDateForView(savingPlan.endDate)}</td>
-                                        <td>{formatCurrencyForView(savingPlan.monthlyIncome, selectedCurrency)}</td>
-                                        <td>
-                                            <Link to={`/saving-plan-expenses/${savingPlan.id}`}>
-                                                {formatCurrencyForView(getMonthlyExpensesTotal(monthlyExpenses), selectedCurrency)}
-                                            </Link>
-                                        </td>
-                                        <td>{formatCurrencyForView(savingPlan.savings, selectedCurrency)}</td>
-                                        <td>{formatCurrencyForView(savingPlan.investments, selectedCurrency)}</td>
-                                       <td>
-                                            {overBudget && (
-                                                <div className="text-danger small mb-1">
-                                                    Exceeds income by {formatCurrencyForView(overspend, selectedCurrency)}
-                                                </div>
-                                            )}
-                                            <div className="d-flex gap-1">
-                                                <Button
-                                                    variant="outline-secondary"
-                                                    size="sm"
-                                                    onClick={() => handleUpdate(savingPlan.id)}
-                                                    className="saving-plan-action-btn saving-plan-action-btn-update"
-                                                >
-                                                    <FiEdit2 size={13} />
-                                                </Button>
-                                                <Button
-                                                    variant="outline-danger"
-                                                    size="sm"
-                                                    onClick={() => handleDelete(savingPlan.id)}
-                                                    className="saving-plan-action-btn saving-plan-action-btn-delete"
-                                                >
-                                                    <FiTrash2 size={13} />
-                                                </Button>
-                                            </div>
-                                        </td>     
-                                    </tr>
-                                    );
-                                })}
-                                {filteredSavingPlan.length === 0 && (
-                                    <tr>
-                                        <td colSpan="8" className="text-center py-4">
-                                            No saving plans found for {activeYear}.
-                                        </td>
-                                    </tr>
-                                )}
-                            </tbody>    
-                        </Table>
-                    </Col>
-                </Row>
-                <Row className="mt-4">
-                    <Col>
-                        <div className="text-center my-3">
-                            <Button variant="primary" onClick={() => handleAdd()}>
-                                + Add New Saving Plan
-                            </Button>
-                        </div>
-                    </Col>
-                </Row>
-                <Row className="mt-4">
-                    <Col>
-                        <div className="d-flex justify-content-end">
-                            <div style={{ width: '420px' }}>
-                                <CsvUpload onUploadSuccess={handleUploadSuccess} />
-                            </div>
-                        </div>
-                    </Col>
-                </Row>
-            </Container>
-        </>
-    )
+                            );
+                        })}
+                        {filteredSavingPlan.length === 0 && (
+                            <tr>
+                                <td colSpan="8" className="saving-overview-empty">
+                                    <div className="saving-overview-empty-title">No saving plans found for {activeYear}</div>
+                                    <div className="saving-overview-empty-text">Create a plan to start tracking your monthly money flow.</div>
+                                    <Button variant="primary" size="sm" onClick={handleAdd}>Create Your First Plan</Button>
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </Table>
+            </section>
+        </Container>
+    );
 
 }
 

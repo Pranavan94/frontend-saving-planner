@@ -1,5 +1,5 @@
 import {
-    getSameYearCarryForwardSource,
+    getPreviousCarryForwardSource,
     isCarryForwardFieldsPristine,
     mergeCarryForwardExpenses,
     normalizeMonthlyExpenses,
@@ -172,7 +172,7 @@ describe('monthlyExpenses API contract mapping', () => {
         expect(merged.subscriptions[0].name).toBe('Netflix');
     });
 
-    it('finds the latest earlier plan in the same year for carry-forward', () => {
+    it('finds the latest earlier plan before selected start date for carry-forward', () => {
         const plans = [
             { id: 1, startDate: '2025-01-01T00:00:00.000Z', monthlyExpenses: { subscriptions: [{ subscriptionName: 'Netflix', subscriptionCost: 99 }] } },
             { id: 2, startDate: '2025-03-01T00:00:00.000Z', monthlyExpenses: { subscriptions: [{ subscriptionName: 'Spotify', subscriptionCost: 89 }] } },
@@ -180,8 +180,28 @@ describe('monthlyExpenses API contract mapping', () => {
             { id: 4, startDate: '2025-08-01T00:00:00.000Z', monthlyExpenses: { subscriptions: [] } },
         ];
 
-        expect(getSameYearCarryForwardSource(plans, '2025-04-01', null)?.id).toBe(2);
-        expect(getSameYearCarryForwardSource(plans, '2025-09-01', 4)?.id).toBe(2);
-        expect(getSameYearCarryForwardSource(plans, '2025-01-01', null)).toBeNull();
+        expect(getPreviousCarryForwardSource(plans, '2025-04-01', null)?.id).toBe(2);
+        expect(getPreviousCarryForwardSource(plans, '2025-09-01', 4)?.id).toBe(2);
+        expect(getPreviousCarryForwardSource(plans, '2025-01-01', null)?.id).toBe(3);
+    });
+
+    it('falls back to latest available plan when start date is missing or invalid', () => {
+        const plans = [
+            { id: 1, startDate: '2025-01-01T00:00:00.000Z' },
+            { id: 2, startDate: '2025-03-01T00:00:00.000Z' },
+            { id: 3, startDate: '2024-12-01T00:00:00.000Z' },
+        ];
+
+        expect(getPreviousCarryForwardSource(plans, '', null)?.id).toBe(2);
+        expect(getPreviousCarryForwardSource(plans, 'not-a-date', null)?.id).toBe(2);
+    });
+
+    it('returns null when there is no previous row candidate', () => {
+        const plans = [
+            { id: 1, startDate: '2025-06-01T00:00:00.000Z' },
+        ];
+
+        expect(getPreviousCarryForwardSource(plans, '2025-05-01', null)).toBeNull();
+        expect(getPreviousCarryForwardSource([], '2025-05-01', null)).toBeNull();
     });
 });

@@ -68,15 +68,65 @@
 
 .carry-forward-hint {
     display: flex;
-    align-items: center;
+    align-items: stretch;
     justify-content: space-between;
-    gap: 0.75rem;
-    margin-top: 0.85rem;
-    padding: 0.75rem 0.9rem;
-    border: 1px solid rgba(12, 50, 114, 0.12);
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.88);
-    color: #27486f;
+    gap: 1rem;
+    margin-top: 0.9rem;
+    padding: 1rem 1.1rem;
+    border: 1px solid rgba(102, 218, 255, 0.58);
+    border-radius: 12px;
+    background: linear-gradient(140deg, #05080d 0%, #0c131d 58%, #121a24 100%);
+    box-shadow: 0 24px 44px rgba(0, 0, 0, 0.62), 0 10px 24px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(145, 225, 255, 0.16);
+    color: #a9e7ff;
+}
+
+.carry-forward-content {
+    min-width: 0;
+}
+
+.carry-forward-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.18rem 0.52rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: #8fe7ff;
+    border: 1px solid rgba(102, 218, 255, 0.44);
+    background-color: rgba(102, 218, 255, 0.14);
+}
+
+.carry-forward-content h3 {
+    margin: 0.45rem 0 0.3rem;
+    font-size: 1rem;
+    color: #7fdfff;
+    text-shadow: 0 0 14px rgba(80, 209, 255, 0.28);
+}
+
+.carry-forward-content p {
+    margin: 0;
+    color: #b8ecff;
+    font-size: 0.93rem;
+    line-height: 1.42;
+}
+
+.carry-forward-action {
+    align-self: center;
+    white-space: nowrap;
+    font-weight: 600;
+    border-color: rgba(102, 218, 255, 0.75);
+    background: rgba(7, 20, 33, 0.78);
+    color: #97e5ff;
+}
+
+.carry-forward-action:hover,
+.carry-forward-action:focus,
+.carry-forward-action:active {
+    border-color: rgba(137, 228, 255, 0.95);
+    background: rgba(16, 40, 62, 0.95);
+    color: #ccf4ff;
 }
 
 .expense-subsection + .expense-subsection {
@@ -177,6 +227,11 @@
     .carry-forward-hint {
         flex-direction: column;
         align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .carry-forward-action {
+        align-self: stretch;
     }
 
     .expense-total {

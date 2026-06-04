@@ -211,26 +211,33 @@ const getPlanReferenceDate = (plan) => {
     return Number.isNaN(date.getTime()) ? null : date;
 };
 
-export const getSameYearCarryForwardSource = (plans, startDateValue, excludedPlanId = null) => {
-    if (!startDateValue) {
-        return null;
-    }
-
-    const selectedDate = new Date(startDateValue);
-
-    if (Number.isNaN(selectedDate.getTime())) {
-        return null;
-    }
-
-    return getArray(plans)
+export const getPreviousCarryForwardSource = (plans, startDateValue, excludedPlanId = null) => {
+    const datedPlans = getArray(plans)
         .filter((plan) => String(plan?.id ?? '') !== String(excludedPlanId ?? ''))
         .map((plan) => ({
             plan,
             referenceDate: getPlanReferenceDate(plan),
         }))
-        .filter(({ referenceDate }) => referenceDate && referenceDate < selectedDate)
-        .filter(({ referenceDate }) => referenceDate.getFullYear() === selectedDate.getFullYear())
-        .sort((left, right) => right.referenceDate.getTime() - left.referenceDate.getTime())[0]?.plan ?? null;
+        .filter(({ referenceDate }) => referenceDate)
+        .sort((left, right) => right.referenceDate.getTime() - left.referenceDate.getTime());
+
+    if (!datedPlans.length) {
+        return null;
+    }
+
+    if (!startDateValue) {
+        return datedPlans[0].plan;
+    }
+
+    const selectedDate = new Date(startDateValue);
+
+    if (Number.isNaN(selectedDate.getTime())) {
+        return datedPlans[0].plan;
+    }
+
+    const previousPlan = datedPlans.find(({ referenceDate }) => referenceDate < selectedDate);
+
+    return previousPlan?.plan ?? null;
 };
 
 

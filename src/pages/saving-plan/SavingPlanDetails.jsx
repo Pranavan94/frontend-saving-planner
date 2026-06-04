@@ -10,8 +10,7 @@ import {
     createEmptySubscriptionEntry,
     emptyMonthlyExpenses,
     fixedMonthlyExpenseFields,
-    getSameYearCarryForwardSource,
-    isCarryForwardFieldsPristine,
+    getPreviousCarryForwardSource,
     mergeCarryForwardExpenses,
     normalizeMonthlyExpenses,
     getMonthlyExpensesTotal,
@@ -257,7 +256,7 @@ const SavingPlanDetails = () => {
         setErrors({ ...errors, [name]: validateField(name, value) });
     };
 
-    const carryForwardSource = getSameYearCarryForwardSource(allPlans, formData.startDate, isNew ? null : id);
+    const carryForwardSource = getPreviousCarryForwardSource(allPlans, formData.startDate, isNew ? null : id);
 
     const buildCarryForwardHighlightSet = () => new Set([
         ...fixedMonthlyExpenseFields.map((f) => `monthlyExpenses.${f.key}`),
@@ -279,24 +278,6 @@ const SavingPlanDetails = () => {
         setErrors(validateAll(nextFormData));
         setCarryForwardHighlights(buildCarryForwardHighlightSet());
     };
-
-    useEffect(() => {
-        if (!isNew || !carryForwardSource || !formData.startDate) {
-            return;
-        }
-
-        if (!isCarryForwardFieldsPristine(formData.monthlyExpenses)) {
-            return;
-        }
-
-        const nextFormData = {
-            ...formData,
-            monthlyExpenses: mergeCarryForwardExpenses(formData.monthlyExpenses, carryForwardSource),
-        };
-
-        setFormData(nextFormData);
-        setCarryForwardHighlights(buildCarryForwardHighlightSet());
-    }, [carryForwardSource, formData, isNew]);
 
     const handleAddNamedAmountEntry = (section) => {
         setEntryModal({
@@ -615,19 +596,24 @@ const SavingPlanDetails = () => {
                         <div className="expense-section-heading">
                             <div>
                                 <h2>Monthly Expenses</h2>
-                                <p>Organized as a nested object with fixed, variable, and subscription costs.</p>
+                                <p>Enter your regular and flexible monthly costs, plus insurance and subscriptions.</p>
                                 {carryForwardSource && (
-                                    <div className="carry-forward-hint">
-                                        <span>
-                                            Use the latest plan from {formatMonthYear(carryForwardSource.startDate || carryForwardSource.endDate)} to copy recurring expenses into this month.
-                                        </span>
+                                    <div className="carry-forward-hint" role="status" aria-live="polite">
+                                        <div className="carry-forward-content">
+                                            <span className="carry-forward-pill">Smart Prefill</span>
+                                            <h3>Reuse values from your previous plan</h3>
+                                            <p>
+                                                Source: {formatMonthYear(carryForwardSource.startDate || carryForwardSource.endDate)}. This fills Fixed Expenses, Insurance, and Subscriptions in one click.
+                                            </p>
+                                        </div>
                                         <Button
                                             variant="outline-primary"
                                             size="sm"
                                             type="button"
                                             onClick={applyCarryForwardExpenses}
+                                            className="carry-forward-action"
                                         >
-                                            Apply Same-Year Expenses
+                                            Use Previous Plan Values
                                         </Button>
                                     </div>
                                 )}
