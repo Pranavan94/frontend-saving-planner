@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { FiActivity, FiAlertTriangle, FiDollarSign, FiEdit2, FiTrash2 } from "react-icons/fi";
+import { FiDollarSign, FiEdit2, FiTrendingUp, FiTrash2 } from "react-icons/fi";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
@@ -68,6 +68,24 @@ const formatCurrencyForView = (value, currency) => {
     }).format(numericValue);
 };
 
+const positiveValueThreshold = 1;
+
+const getSavingsValueTone = (value) => {
+    const numericValue = Number(value) || 0;
+    return numericValue >= positiveValueThreshold ? 'positive' : 'neutral';
+};
+
+const formatSavingsCurrency = (value, currency) => {
+    const numericValue = Number(value) || 0;
+    const formatted = formatCurrencyForView(numericValue, currency);
+
+    if (!formatted) {
+        return '';
+    }
+
+    return numericValue >= positiveValueThreshold ? `+ ${formatted}` : formatted;
+};
+
 const getTotalExpenses = (plan) =>
     (Number(plan.savings) || 0)
     + (Number(plan.investments) || 0)
@@ -110,8 +128,6 @@ const SavingPlan = () => {
         ? availableYears
         : [activeYear, ...availableYears].sort((left, right) => Number(right) - Number(left));
     const filteredSavingPlan = savingPlan.filter((plan) => getPlanYear(plan) === activeYear);
-    const totalPlans = filteredSavingPlan.length;
-    const overBudgetCount = filteredSavingPlan.filter((plan) => isOverBudget(plan)).length;
     const totalMonthlyIncome = filteredSavingPlan.reduce(
         (sum, plan) => sum + (Number(plan.monthlyIncome) || 0),
         0
@@ -120,32 +136,46 @@ const SavingPlan = () => {
         (sum, plan) => sum + getMonthlyExpensesTotal(normalizeMonthlyExpenses(plan.monthlyExpenses, plan)),
         0
     );
+    const totalSavingsForYear = filteredSavingPlan.reduce(
+        (sum, plan) => sum + (Number(plan.savings) || 0),
+        0
+    );
+    const totalInvestmentsForYear = filteredSavingPlan.reduce(
+        (sum, plan) => sum + (Number(plan.investments) || 0),
+        0
+    );
 
     const summaryCards = [
         {
-            key: 'plans',
-            label: 'Plans This Year',
-            value: String(totalPlans),
-            icon: <FiActivity size={18} />,
-        },
-        {
             key: 'income',
-            label: 'Total Monthly Income',
-            value: formatCurrencyForView(totalMonthlyIncome, selectedCurrency),
+            label: 'Total Income for the Year',
+            value: `+ ${formatCurrencyForView(totalMonthlyIncome, selectedCurrency)}`,
             icon: <FiDollarSign size={18} />,
+            valuePrefixIcon: <FiTrendingUp size={14} />,
+            tone: 'positive',
         },
         {
             key: 'expenses',
-            label: 'Total Monthly Expenses',
-            value: formatCurrencyForView(totalMonthlyExpenses, selectedCurrency),
+            label: 'Total Expenses for the Year',
+            value: `- ${formatCurrencyForView(totalMonthlyExpenses, selectedCurrency)}`,
             icon: <FiDollarSign size={18} />,
+            tone: 'negative',
         },
         {
-            key: 'risk',
-            label: 'Over Budget Plans',
-            value: String(overBudgetCount),
-            icon: <FiAlertTriangle size={18} />,
-            alert: overBudgetCount > 0,
+            key: 'savings',
+            label: 'Total Savings This Year',
+            value: formatSavingsCurrency(totalSavingsForYear, selectedCurrency),
+            icon: <FiDollarSign size={18} />,
+            valuePrefixIcon: getSavingsValueTone(totalSavingsForYear) === 'positive' ? <FiTrendingUp size={14} /> : null,
+            tone: getSavingsValueTone(totalSavingsForYear) === 'positive' ? 'positive' : null,
+        },
+        {
+            key: 'investments',
+            label: 'Total Investments This Year',
+            value: formatSavingsCurrency(totalInvestmentsForYear, selectedCurrency),
+            icon: <FiDollarSign size={18} />,
+            valuePrefixIcon: getSavingsValueTone(totalInvestmentsForYear) === 'positive' ? <FiTrendingUp size={14} /> : null,
+            tone: getSavingsValueTone(totalInvestmentsForYear) === 'positive' ? 'positive' : null,
         },
     ];
 
@@ -247,7 +277,10 @@ const SavingPlan = () => {
                         <div className={`saving-summary-card${card.alert ? ' saving-summary-card-alert' : ''}`}>
                             <div className="saving-summary-icon">{card.icon}</div>
                             <div className="saving-summary-label">{card.label}</div>
-                            <div className="saving-summary-value">{card.value}</div>
+                            <div className={`saving-summary-value${card.tone ? ` saving-summary-value-${card.tone}` : ''}`}>
+                                {card.valuePrefixIcon && <span className="saving-summary-value-prefix">{card.valuePrefixIcon}</span>}
+                                {card.value}
+                            </div>
                         </div>
                     </Col>
                 ))}
@@ -257,8 +290,7 @@ const SavingPlan = () => {
                 <Table responsive className="saving-overview-table">
                     <thead>
                         <tr>
-                            <th>Start Date</th>
-                            <th>End Date</th>
+                            <th>Period</th>
                             <th>Monthly Income</th>
                             <th>Monthly Expenses</th>
                             <th>Savings</th>
@@ -275,16 +307,39 @@ const SavingPlan = () => {
 
                             return (
                                 <tr key={plan.id} className={overBudget ? 'saving-over-budget-row' : undefined}>
-                                    <td>{formatDateForView(plan.startDate)}</td>
-                                    <td>{formatDateForView(plan.endDate)}</td>
-                                    <td>{formatCurrencyForView(plan.monthlyIncome, selectedCurrency)}</td>
+                                    <td className="saving-period-cell">
+                                        (From {formatDateForView(plan.startDate)} To {formatDateForView(plan.endDate)})
+                                    </td>
                                     <td>
-                                        <Link to={`/saving-plan-expenses/${plan.id}`} className="saving-overview-expense-link">
-                                            {formatCurrencyForView(getMonthlyExpensesTotal(monthlyExpenses), selectedCurrency)}
+                                        <span className="saving-monthly-income-value">
+                                            <FiDollarSign size={12} />
+                                            {formatCurrencyForView(plan.monthlyIncome, selectedCurrency)}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <Link
+                                            to={`/saving-plan-expenses/${plan.id}`}
+                                            className="saving-overview-expense-link"
+                                            title="Open detailed monthly expenses"
+                                        >
+                                            <span className="saving-overview-expense-value">
+                                                {formatCurrencyForView(getMonthlyExpensesTotal(monthlyExpenses), selectedCurrency)}
+                                            </span>
+                                            <span className="saving-overview-expense-link-hint">View details</span>
                                         </Link>
                                     </td>
-                                    <td>{formatCurrencyForView(plan.savings, selectedCurrency)}</td>
-                                    <td>{formatCurrencyForView(plan.investments, selectedCurrency)}</td>
+                                    <td>
+                                        <span className={`saving-table-value saving-table-value-${getSavingsValueTone(plan.savings)}`}>
+                                            {getSavingsValueTone(plan.savings) === 'positive' && <FiTrendingUp size={12} />}
+                                            {formatSavingsCurrency(plan.savings, selectedCurrency)}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span className={`saving-table-value saving-table-value-${getSavingsValueTone(plan.investments)}`}>
+                                            {getSavingsValueTone(plan.investments) === 'positive' && <FiTrendingUp size={12} />}
+                                            {formatSavingsCurrency(plan.investments, selectedCurrency)}
+                                        </span>
+                                    </td>
                                     <td>
                                         <span className={`saving-status-chip${overBudget ? ' saving-status-chip-danger' : ' saving-status-chip-ok'}`}>
                                             {overBudget

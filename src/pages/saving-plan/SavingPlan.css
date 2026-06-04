@@ -67,13 +67,12 @@
 .saving-overview-toolbar {
   display: flex;
   justify-content: space-between;
-  gap: 1rem;
-  flex-wrap: wrap;
-  align-items: flex-end;
+  align-items: center;
+  gap: 1.5rem;
   background: #ffffff;
   border: 1px solid #d6e3f2;
   border-radius: 14px;
-  padding: 1rem;
+  padding: 0.875rem 1rem;
   margin-bottom: 1rem;
 }
 
@@ -81,12 +80,13 @@
   display: flex;
   gap: 1rem;
   flex-wrap: wrap;
-  align-items: flex-end;
+  align-items: center;
 }
 
 .saving-overview-csv-wrap {
-  width: 420px;
-  max-width: 100%;
+  display: flex;
+  align-items: center;
+  margin-left: auto;
 }
 
 .saving-summary-card {
@@ -121,10 +121,27 @@
 }
 
 .saving-summary-value {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   margin-top: 0.2rem;
   font-size: 1.4rem;
   font-weight: 700;
   color: #0e2b4f;
+}
+
+.saving-summary-value-prefix {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+}
+
+.saving-summary-value-positive {
+  color: #127a4f;
+}
+
+.saving-summary-value-negative {
+  color: #b22d3d;
 }
 
 .saving-overview-table-shell {
@@ -157,6 +174,12 @@
   color: #233f60;
 }
 
+.saving-period-cell {
+  font-weight: 600;
+  color: #1a3a5c;
+  font-size: 0.9rem;
+}
+
 .saving-overview-table tbody tr {
   transition: background-color 0.2s ease;
 }
@@ -174,14 +197,82 @@
 }
 
 .saving-overview-expense-link {
-  color: #0f66a3;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.06rem;
+  padding: 0.14rem 0.45rem;
+  border-radius: 10px;
+  border: 1px solid #f4c5cc;
+  background: #fff5f6;
+  color: #a83647;
   font-weight: 700;
   text-decoration: none;
 }
 
 .saving-overview-expense-link:hover {
-  color: #0b4f80;
-  text-decoration: underline;
+  color: #7a2533;
+  border-color: #f0a1b0;
+  background: #ffe8ed;
+}
+
+.saving-overview-expense-value {
+  line-height: 1.15;
+}
+
+.saving-overview-expense-link-hint {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #8d4a59;
+  text-transform: none;
+  letter-spacing: 0.01em;
+}
+
+.saving-overview-expense-heading {
+  display: block;
+}
+
+.saving-overview-expense-heading-hint {
+  display: block;
+  margin-bottom: 0.12rem;
+  font-size: 0.62rem;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  color: #9d5668;
+}
+
+.saving-monthly-income-value {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.14rem 0.45rem;
+  border-radius: 10px;
+  border: 1px solid #c5dff0;
+  background: #e8f4ff;
+  color: #0f66a3;
+  font-weight: 700;
+}
+
+.saving-table-value {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  padding: 0.14rem 0.45rem;
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+.saving-table-value-positive {
+  color: #0f6b45;
+  background: #e8f8f0;
+  border: 1px solid #bde8d2;
+}
+
+.saving-table-value-neutral {
+  color: #385676;
+  background: #f2f6fb;
+  border: 1px solid #d9e5f2;
 }
 
 .saving-status-chip {
