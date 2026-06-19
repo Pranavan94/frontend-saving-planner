@@ -25,7 +25,7 @@ const compactNumber = (value) => new Intl.NumberFormat('en-GB', {
     maximumFractionDigits: 1,
 }).format(value);
 
-export const ProgressDonut = ({ progressPct, reached, onTrack }) => {
+export const ProgressDonut = ({ progressPct, reached, onTrack, isUnachievable }) => {
     const clamped = Math.max(0, Math.min(progressPct, 100));
     const fill = reached
         ? PROGRESS_COLORS.reached
@@ -59,7 +59,7 @@ export const ProgressDonut = ({ progressPct, reached, onTrack }) => {
             </ResponsiveContainer>
             <div className="goal-donut-center">
                 <span className="goal-donut-pct">{clamped.toFixed(0)}%</span>
-                <span className="goal-donut-label">of goal</span>
+                <span className="goal-donut-label">{isUnachievable ? 'off track' : 'of goal'}</span>
             </div>
         </div>
     );

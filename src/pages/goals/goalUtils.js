@@ -44,9 +44,26 @@ export const formatDateForInput = (value) => {
 };
 
 const monthsBetween = (from, to) => {
-    const years = to.getFullYear() - from.getFullYear();
-    const months = to.getMonth() - from.getMonth();
-    return years * 12 + months;
+    const millisecondsPerMonth = 1000 * 60 * 60 * 24 * 30.4375;
+    const diffMs = to.getTime() - from.getTime();
+
+    if (diffMs <= 0) {
+        return 0;
+    }
+
+    // Count partial future months so near-term target dates still produce a projection.
+    return Math.max(1, Math.ceil(diffMs / millisecondsPerMonth));
+};
+
+const getMonthKey = (value) => {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+        return '';
+    }
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    return `${year}-${month}`;
 };
 
 /**
@@ -58,19 +75,30 @@ const monthsBetween = (from, to) => {
 export const buildProjectionSeries = ({
     currentAmount,
     targetAmount,
+    startDate,
     targetDate,
     monthlyContribution,
+    monthlyContributionPlan = [],
+    projectionAnchorDate,
     monthlyRate = 0,
 }) => {
     const now = new Date();
+    const parsedStart = startDate ? new Date(startDate) : null;
+    const hasValidStart = parsedStart && !Number.isNaN(parsedStart.getTime());
+    const parsedAnchor = projectionAnchorDate ? new Date(projectionAnchorDate) : null;
+    const hasValidAnchor = parsedAnchor && !Number.isNaN(parsedAnchor.getTime());
+    const projectionStart = hasValidAnchor
+        ? parsedAnchor
+        : (hasValidStart && parsedStart > now ? parsedStart : now);
+    const projectionMonthStart = new Date(projectionStart.getFullYear(), projectionStart.getMonth(), 1);
     const series = [{
-        label: formatDate(now),
+        label: formatDate(projectionStart),
         projected: Math.round(currentAmount),
         target: Math.round(targetAmount),
     }];
 
     const end = targetDate ? new Date(targetDate) : null;
-    const remainingMonths = end ? monthsBetween(now, end) : 0;
+    const remainingMonths = end ? monthsBetween(projectionStart, end) : 0;
 
     if (!end || remainingMonths <= 0) {
         return series;
@@ -79,10 +107,24 @@ export const buildProjectionSeries = ({
     // Cap rendered points to keep the chart readable on long horizons.
     const cappedMonths = Math.min(remainingMonths, 600);
     let balance = currentAmount;
+    const contributionByMonthKey = (monthlyContributionPlan || []).reduce((acc, entry) => {
+        const monthKey = getMonthKey(entry?.monthDate || entry?.month || entry?.date);
+        if (!monthKey) {
+            return acc;
+        }
 
-    for (let month = 1; month <= cappedMonths; month += 1) {
-        balance = balance * (1 + monthlyRate) + monthlyContribution;
-        const pointDate = new Date(now.getFullYear(), now.getMonth() + month, 1);
+        acc[monthKey] = Number(entry?.amount) || 0;
+        return acc;
+    }, {});
+
+    for (let month = 0; month < cappedMonths; month += 1) {
+        const pointDate = new Date(projectionMonthStart.getFullYear(), projectionMonthStart.getMonth() + month, 1);
+        const pointMonthKey = getMonthKey(pointDate);
+        const contributionForMonth = Object.prototype.hasOwnProperty.call(contributionByMonthKey, pointMonthKey)
+            ? contributionByMonthKey[pointMonthKey]
+            : monthlyContribution;
+
+        balance = balance * (1 + monthlyRate) + contributionForMonth;
         series.push({
             label: formatDate(pointDate),
             projected: Math.round(balance),
@@ -99,8 +141,11 @@ export const buildProjectionSeries = ({
 export const computeGoalStats = ({
     currentAmount = 0,
     targetAmount = 0,
+    startDate,
     targetDate,
     monthlyContribution = 0,
+    monthlyContributionPlan = [],
+    projectionAnchorDate,
     annualReturnRate = 0,
 }) => {
     const safeCurrent = Number(currentAmount) || 0;
@@ -116,8 +161,11 @@ export const computeGoalStats = ({
     const series = buildProjectionSeries({
         currentAmount: safeCurrent,
         targetAmount: safeTarget,
+        startDate,
         targetDate,
         monthlyContribution: safeContribution,
+        monthlyContributionPlan,
+        projectionAnchorDate,
         monthlyRate,
     });
 

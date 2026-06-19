@@ -6,8 +6,8 @@ const SavingsPurpose = () => (
         isInvestment={false}
         eyebrow="Savings Planner"
         title="Savings Purpose"
-        subtitle="Set what you're saving for — a car, a vacation, a rainy day — and watch how close you are using your real savings data."
-        contributionLabel="Avg monthly savings"
+        subtitle="Set what you're saving for this year — a car, a vacation, a rainy day — and track the average you are saving each month so far."
+        contributionLabel="Avg monthly savings so far"
         addLabel="Add Savings Goal"
         entityLabel="savings goals"
     />

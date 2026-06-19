@@ -6,9 +6,9 @@ const InvestmentGoals = () => (
         isInvestment
         eyebrow="Investment Planner"
         title="Investment Goals"
-        subtitle="Define your investment targets, set your expected annual return, and project compounded growth from your real investment data."
+        subtitle="Define your investment targets for this year, set your expected annual return, and track the average you are investing each month so far."
         heroClass="goals-hero-invest"
-        contributionLabel="Avg monthly invested"
+        contributionLabel="Avg monthly invested so far"
         addLabel="Add Investment Goal"
         entityLabel="investment goals"
     />
